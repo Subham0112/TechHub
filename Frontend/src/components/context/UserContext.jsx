@@ -29,7 +29,6 @@ export const UserProvider = ({ children }) => {
     getCurrentUser();
   }, []);
 
-  // this is what Login page will call
   const saveUser = (userData) => {
     setUser(userData);
   };
@@ -40,8 +39,8 @@ export const UserProvider = ({ children }) => {
   } catch (e) {
     console.error(e);
   } finally {
-    setUser(null); // Always set to null, even if request fails
-    setLoading(false); // Reset loading state
+    setUser(null); 
+    setLoading(false); 
   }
 };
 

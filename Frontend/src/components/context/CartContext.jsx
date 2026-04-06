@@ -8,15 +8,13 @@ export const CartProvider = ({ children }) => {
   const { user } = useContext(UserContext);
   const [cartItems, setCartItems] = useState([]);
   const [cartLoading, setCartLoading] = useState(false);
-  const [toast, setToast] = useState(null); // { message, type: 'success'|'error' }
+  const [toast, setToast] = useState(null); 
 
-  // Show toast for 3 seconds then auto-hide
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Fetch cart on login
   useEffect(() => {
     if (!user) {
       setCartItems([]);
@@ -72,7 +70,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Total count for cart badge in Navbar
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (

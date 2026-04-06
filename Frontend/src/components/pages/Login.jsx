@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc'
 import axios from 'axios'
 import { FiGithub } from 'react-icons/fi'
-import { UserContext } from '../context/UserContext' // Add this import
+import { UserContext } from '../context/UserContext' 
 
 const Login = ({handleAlert}) => {
   const [showPassword, setShowPassword] = useState(false)
@@ -17,8 +17,7 @@ const Login = ({handleAlert}) => {
   })
 
   const navigate = useNavigate();
-  const { saveUser } = useContext(UserContext) // Get saveUser from context
-
+  const { saveUser } = useContext(UserContext) 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setFormData({
@@ -40,15 +39,13 @@ const Login = ({handleAlert}) => {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/users/login`,
         userData,
-        { withCredentials: true } // Important: send cookies with request
+        { withCredentials: true } 
       )
       
       console.log("Login Successful", response.data)
       
-      // Update UserContext immediately with logged-in user
-      saveUser(response.data.user) // This makes navbar update instantly
+      saveUser(response.data.user) 
       
-      // Navigate to home
       navigate("/")
     } catch (error) {
       console.log("Login Failed", error)
