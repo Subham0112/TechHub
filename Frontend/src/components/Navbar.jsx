@@ -30,9 +30,21 @@ const { cartCount } = useContext(CartContext); // add this line
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+  if (mobileMenuOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+
+  // Cleanup on unmount
+  return () => {
+    document.body.style.overflow = '';
+  };
+}, [mobileMenuOpen]);
+
   const handleLogout = async () => {
     await logout();
-    navigate("/");
     setProfileDropdownOpen(false);
   };
 
@@ -193,6 +205,33 @@ const { cartCount } = useContext(CartContext); // add this line
                             
                           My Wishlist
                         </button>
+                        {
+                          user.role === "admin" && (
+                            <button
+                          onClick={() => {
+                            navigate("/add-products");
+                            setProfileDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 transition text-sm"
+                        >
+                          Add Products
+                        </button>
+                          )}
+                          {user.role === "admin" && (
+                        <button
+                          onClick={() => {
+                            navigate("/manage-products");
+                            setProfileDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 transition text-sm"
+                        >
+                           
+                          
+                            
+                          Manage Products
+                        </button>
+                        )}
+                        
                       </div>
 
                       <div className="border-t border-slate-700 py-2">
@@ -264,7 +303,7 @@ const { cartCount } = useContext(CartContext); // add this line
               <a
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                className="flex items-center gap-3 px-3 py-2.5 text-gray-200  hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
               >
                 Home
               </a>
@@ -324,11 +363,23 @@ const { cartCount } = useContext(CartContext); // add this line
               >
                 Contact
               </a>
+              <a
+                href="/add-products"
+                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+              >
+                Add Products
+              </a>
+              <a
+                href="/manage-products"
+                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+              >
+                Manage Products
+              </a>
             </nav>
           </div>
 
           {/* Mobile Menu Footer */}
-          <div className="p-4 border-t border-slate-700">
+          <div className="pb-4 pt-2 px-4 border-t border-slate-700">
             {user ? (
               <div className="space-y-2">
                 <div className="px-4 py-2 text-white border-b border-slate-700 mb-2">

@@ -7,7 +7,10 @@ import Cart from './components/pages/Cart.jsx'
 import Footer from './components/Footer'
 import Alert from './components/Alert.jsx'
 import ProtectedRoute from './components/Auth/ProtectedRoute.jsx'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import ProductManage from './components/pages/ProductManage.jsx'
+import AddProduct from './components/pages/AddProduct.jsx'
+import AdminRoute from './components/Auth/AdminRoute.jsx'
+import { Routes, Route } from 'react-router-dom'
 
 const App = () => {
   
@@ -16,8 +19,7 @@ const [alert, setAlert] = useState(null);
 const handleAlert = (alertObj) => setAlert(alertObj);
 const handleDismiss = () => setAlert(null);
   return (
-    
-    <Router>
+  <>
       <Navbar />
       {alert && <Alert alert={alert} onDismiss={handleDismiss} />}
       <Routes>
@@ -27,12 +29,21 @@ const handleDismiss = () => setAlert(null);
         <Route path="/cart" element={
           <ProtectedRoute>
             <Cart />
-          </ProtectedRoute>
-          
-          }/>
+          </ProtectedRoute> }
+          />
+           <Route path="/manage-products" element={
+            <AdminRoute>
+              <ProductManage />
+            </AdminRoute>
+          } />
+           <Route path="/add-products" element={
+            <AdminRoute>
+              <AddProduct />
+            </AdminRoute>
+          } />
       </Routes>
       <Footer />
-    </Router>
+      </>
   )
 }
 

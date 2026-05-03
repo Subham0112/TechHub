@@ -5,10 +5,10 @@ import { UserContext } from './UserContext';
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { user } = useContext(UserContext);
+  const { user, loading: userLoading } = useContext(UserContext);
   const [cartItems, setCartItems] = useState([]);
-  const [cartLoading, setCartLoading] = useState(false);
-  const [toast, setToast] = useState(null); 
+  const [cartLoading, setCartLoading] = useState(true);
+  const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -16,10 +16,14 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (userLoading) return;
+
     if (!user) {
       setCartItems([]);
+      setCartLoading(false);
       return;
     }
+
     const fetchCart = async () => {
       setCartLoading(true);
       try {
@@ -31,8 +35,9 @@ export const CartProvider = ({ children }) => {
         setCartLoading(false);
       }
     };
+
     fetchCart();
-  }, [user]);
+  }, [user, userLoading]);
 
   const addToCart = async (product) => {
     try {

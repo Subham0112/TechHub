@@ -1,11 +1,12 @@
 import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   axios.defaults.withCredentials = true;
 
   useEffect(() => {
@@ -35,7 +36,13 @@ export const UserProvider = ({ children }) => {
 
  const logout = async () => {
   try {
-    await axios.post(`${import.meta.env.VITE_API_URL}/users/logout`);
+    const res= await axios.post(`${import.meta.env.VITE_API_URL}/users/logout`);
+    if (res.status === 200) {
+      setUser(null);
+      navigate("/login");
+    } else {
+      console.error("Logout failed:", res);
+    }
   } catch (e) {
     console.error(e);
   } finally {

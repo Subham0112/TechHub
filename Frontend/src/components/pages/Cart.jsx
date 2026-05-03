@@ -8,14 +8,22 @@ const Cart = () => {
   const { cartItems, cartLoading, updateQuantity, removeFromCart } = useContext(CartContext)
   const navigate = useNavigate()
 
-  // Total price calculation
   const totalPrice = cartItems.reduce((sum, item) => {
     const price = item.productId?.price || 0
     return sum + price * item.quantity
   }, 0)
 
+  /* ── Loading State (always check this first) ── */
+  if (cartLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   /* ── Empty State ── */
-  if (!cartLoading && cartItems.length === 0) {
+  if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center text-white px-4">
         <div className="text-center">
@@ -35,15 +43,7 @@ const Cart = () => {
     )
   }
 
-  /* ── Loading State ── */
-  if (cartLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    )
-  }
-
+  /* ── Cart with items ── */
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-4 py-10">

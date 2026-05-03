@@ -47,7 +47,7 @@ const ProductCard = ({ product, handleCartClick }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
         <button
         onClick={() => handleCartClick(product)}
-        className="px-4 py-1.5 bg-white text-slate-900 rounded-full font-semibold text-sm hover:bg-slate-100 transition-all flex items-center gap-1.5">
+        className="px-4 py-1.5 bg-white text-slate-900 rounded-full font-semibold cursor-pointer text-sm hover:bg-slate-100 transition-all flex items-center gap-1.5">
           <FiShoppingCart className="w-3.5 h-3.5" />
           Quick Add
         </button>
@@ -70,7 +70,7 @@ const ProductCard = ({ product, handleCartClick }) => (
 
         <button
         onClick={() => handleCartClick(product)}
-        className="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
+        className="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors cursor-pointer">
           <FiShoppingCart className="w-4 h-4 text-white" />
         </button>
       </div>
@@ -219,10 +219,9 @@ const { addToCart } = useContext(CartContext);
                   <p className="text-xl text-white/90 mb-8">
                     {slide.subtitle}
                   </p>
-
-                  <button className="px-8 py-4 bg-white text-slate-900 rounded-full font-bold">
+                    <a href="#products" className="px-8 py-4 bg-white text-slate-900 rounded-full font-bold cursor-pointer">
                     View Products
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -230,7 +229,7 @@ const { addToCart } = useContext(CartContext);
         </section>
 
         {/* PRODUCTS */}
-        <section className="max-w-7xl mx-auto px-4 py-12">
+        <section id="products" className="max-w-7xl mx-auto px-4 py-12">
 
           <ProductSection
           handleCartClick={addToCart}

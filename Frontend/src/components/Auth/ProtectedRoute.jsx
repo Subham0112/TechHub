@@ -1,24 +1,28 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
+import { useEffect } from "react";
 
 const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useContext(UserContext); // ← reuse existing context, no extra API call
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/users/profile`, {
-      withCredentials: true
-    })
-    .then(() => {
-      setLoading(false);
-    })
-    .catch(() => {
+    if (!loading && !user) {
       navigate("/login");
-    });
-  }, [navigate]);
+    }
+  }, [user, loading, navigate]);
 
-  if (loading) return <div>Loading...</div>;
+  // Full-screen spinner instead of bare "Loading..."
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) return null; // navigating to /login, render nothing
 
   return children;
 };

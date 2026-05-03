@@ -1,28 +1,29 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const AdminRoute = ({ children }) => {
+  const { user, loading } = useContext(UserContext); // ← use context, no API call
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/users/me`, {
-      withCredentials: true
-    })
-    .then((res) => {
-      if (res.data.role !== "admin") {
-        navigate("/unauthorized");
-      } else {
-        setLoading(false);
-      }
-    })
-    .catch(() => {
+    if (!loading && !user) {
       navigate("/login");
-    });
-  }, [navigate]);
+    }
+    if (!loading && user && user.role !== "admin") {
+      navigate("/"); // logged in but not admin → go home
+    }
+  }, [user, loading, navigate]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "admin") return null;
 
   return children;
 };
