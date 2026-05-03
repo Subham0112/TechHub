@@ -6,6 +6,7 @@ import LoginPage from './components/pages/Login.jsx'
 import Cart from './components/pages/Cart.jsx'
 import Footer from './components/Footer'
 import Alert from './components/Alert.jsx'
+import ProfilePage from './components/pages/ProfilePage.jsx'
 import ProtectedRoute from './components/Auth/ProtectedRoute.jsx'
 import ProductManage from './components/pages/ProductManage.jsx'
 import AddProduct from './components/pages/AddProduct.jsx'
@@ -26,6 +27,7 @@ const handleDismiss = () => setAlert(null);
         <Route path="/" element={<Homepage />} />
         <Route path="/signup" element={<SignupPage handleAlert={handleAlert} />}/>
         <Route path="/login" element={<LoginPage handleAlert={handleAlert} />}/>
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/cart" element={
           <ProtectedRoute>
             <Cart />
