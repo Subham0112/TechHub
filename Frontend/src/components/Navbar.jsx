@@ -205,18 +205,7 @@ const { cartCount } = useContext(CartContext); // add this line
                             
                           My Wishlist
                         </button>
-                        {
-                          user.role === "admin" && (
-                            <button
-                          onClick={() => {
-                            navigate("/add-products");
-                            setProfileDropdownOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 transition text-sm"
-                        >
-                          Add Products
-                        </button>
-                          )}
+                        
                           {user.role === "admin" && (
                         <button
                           onClick={() => {
@@ -363,12 +352,7 @@ const { cartCount } = useContext(CartContext); // add this line
               >
                 Contact
               </a>
-              <a
-                href="/add-products"
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
-              >
-                Add Products
-              </a>
+             
               <a
                 href="/manage-products"
                 className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"

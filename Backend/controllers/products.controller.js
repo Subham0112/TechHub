@@ -50,8 +50,33 @@ const getProductById = async (req, res) => {
     }
 }
 
+const updateProduct = async (req, res) => {
+    if (!validationResult(req).isEmpty()) {
+        return res.status(400).json({ errors: validationResult(req).array() });
+    }
+    const { name, price, description, image, category, type, stock } = req.body;
+    try {
+        const slug = slugify(name, { lower: true, strict: true });
+        const product = await Product.findByIdAndUpdate(req.params.id, {
+            name,
+            price,
+            description,
+            slug,
+            image,
+            category,
+            type,
+            stock,
+        });
+        res.status(200).json(product);
+    } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({ message: "Server error, please try again later" });
+    }
+};
+
 module.exports = {
     getAllProducts,
     createProduct,
     getProductById,
+    updateProduct,
 };
