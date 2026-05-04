@@ -57,16 +57,20 @@ const updateProduct = async (req, res) => {
     const { name, price, description, image, category, type, stock } = req.body;
     try {
         const slug = slugify(name, { lower: true, strict: true });
-        const product = await Product.findByIdAndUpdate(req.params.id, {
-            name,
-            price,
-            description,
-            slug,
-            image,
-            category,
-            type,
-            stock,
-        });
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            {
+                name,
+                price,
+                description,
+                slug,
+                image,
+                category,
+                type,
+                stock,
+            },
+            { new: true }
+        );
         res.status(200).json(product);
     } catch (error) {
         console.error("Error updating product:", error);

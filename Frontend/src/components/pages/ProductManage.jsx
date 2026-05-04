@@ -2,6 +2,7 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import AddProductModal from '../AddProductModal.jsx'
+import EditProductModal from '../EditProductModal.jsx'
 
 const StatCard = ({ label, value, accent }) => (
   <div className='relative overflow-hidden bg-slate-800/60 border border-slate-700/50 rounded-2xl px-6 py-5 backdrop-blur-sm'>
@@ -15,7 +16,33 @@ const ManageProducts = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
   const [search, setSearch] = useState('')
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false)
+    setSelectedProduct(null)
+  }
+
+  const handleEditClick = (product) => {
+    setSelectedProduct(product)
+    setIsEditModalOpen(true)
+  }
+
+  const handleUpdateProduct = async (updatedData) => {
+    if (!selectedProduct) return
+
+    const id = selectedProduct._id || selectedProduct.id
+    try {
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/products/${id}`, updatedData)
+      const updatedProduct = res.data && res.data._id ? res.data : { ...selectedProduct, ...updatedData }
+      setProducts(prev => prev.map(p => (p._id === id || p.id === id) ? updatedProduct : p))
+      closeEditModal()
+    } catch (error) {
+      console.log('Product update error:', error)
+    }
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -205,7 +232,11 @@ const ManageProducts = () => {
                           {/* Actions */}
                           <td className='px-5 py-4'>
                             <div className='flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150'>
-                              <button className='p-1.5 rounded-lg bg-slate-700 hover:bg-indigo-600 text-slate-400 hover:text-white transition-all duration-150' title='Edit'>
+                              <button
+                                onClick={() => handleEditClick(product)}
+                                className='p-1.5 rounded-lg bg-slate-700 hover:bg-indigo-600 text-slate-400 hover:text-white transition-all duration-150'
+                                title='Edit'
+                              >
                                 <svg className='w-3.5 h-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z' />
                                 </svg>
@@ -255,6 +286,13 @@ const ManageProducts = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleAddProduct}
+      />
+
+      <EditProductModal
+        isOpen={isEditModalOpen}
+        onClose={closeEditModal}
+        onSubmit={handleUpdateProduct}
+        product={selectedProduct}
       />
     </>
   )
