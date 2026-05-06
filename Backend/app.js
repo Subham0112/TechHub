@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const UserRoutes = require('./routes/users.route');
 const ProductRoutes = require('./routes/products.route');
 const CartRoutes = require('./routes/cart.route');
+const OrderRoutes = require('./routes/order.route');
 const cookieParser = require('cookie-parser');
 const cors=require('cors');
 app.use(cors({
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use('/api/users', UserRoutes);
 app.use('/api/products', ProductRoutes);
 app.use('/api/cart', CartRoutes);
+app.use('/api/orders', OrderRoutes);
 
 app.get('/', (req, res) => {
     res.send('This is TechHub: An ecommerce website for gadgets and mobile accessories.');

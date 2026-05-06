@@ -138,18 +138,18 @@ const { cartCount } = useContext(CartContext); // add this line
                 <FiSearch className="w-5 h-5" />
               </button>
               
-              <button className="p-2 text-gray-300  hover:text-white hover:bg-slate-800 rounded-md transition">
-                <FiHeart className="w-5 h-5" />
-              </button>
+              { user?.role === "user" && <button className="p-2 text-gray-300  hover:text-white hover:bg-slate-800 rounded-md transition">
+                <FiHeart title="Favourites" className="w-5 h-5" />
+              </button>}
 
-              <button onClick={() => navigate("/cart")} className="p-2 text-gray-300 cursor-pointer hover:text-white hover:bg-slate-800 rounded-md transition relative">
+              {user?.role==="user" && <button onClick={() => navigate("/cart")} className="p-2 text-gray-300 cursor-pointer hover:text-white hover:bg-slate-800 rounded-md transition relative">
              <FiShoppingCart className="w-5 h-5" />
              {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-blue-500 text-white              text-[10px] font-bold w-4 h-4 rounded-full flex items-center              justify-center leading-none">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
-</button>
+                </button>}
 
               {/* Profile Dropdown or Login Button */}
               {user ? (
@@ -166,8 +166,8 @@ const { cartCount } = useContext(CartContext); // add this line
                   {profileDropdownOpen && (
                     <div className="absolute top-full right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-2xl border border-slate-700 overflow-hidden">
                       <div className="p-4 border-b border-slate-700">
-                        <p className="text-white font-semibold text-sm">{user.name || user.email}</p>
-                        <p className="text-gray-400 text-xs">{user.email}</p>
+                        <p className="text-white font-semibold text-sm">{user?.role==="admin"?"Admin":user?.name || user?.email}</p>
+                        <p className="text-gray-400 text-xs">{user?.email}</p>
                       </div>
                       
                       <div className="py-2">
@@ -192,21 +192,8 @@ const { cartCount } = useContext(CartContext); // add this line
                           <FiShoppingCart className="w-5 h-5" />
                           My Orders
                         </button>
-
-                        <button
-                          onClick={() => {
-                            navigate("/wishlist");
-                            setProfileDropdownOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 transition text-sm"
-                        >
-                           
-                            <FiHeart className="w-5 h-5" />
-                            
-                          My Wishlist
-                        </button>
                         
-                          {user.role === "admin" && (
+                          {user?.role === "admin" && (
                         <button
                           onClick={() => {
                             navigate("/manage-products");
@@ -214,10 +201,18 @@ const { cartCount } = useContext(CartContext); // add this line
                           }}
                           className="w-full flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 transition text-sm"
                         >
-                           
-                          
-                            
                           Manage Products
+                        </button>
+                        )}
+                          {user?.role === "admin" && (
+                        <button
+                          onClick={() => {
+                            navigate("/manage-orders");
+                            setProfileDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 transition text-sm"
+                        >
+                          Manage Orders
                         </button>
                         )}
                         
@@ -271,7 +266,7 @@ const { cartCount } = useContext(CartContext); // add this line
       >
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-700">
+          <div className="flex items-center justify-between py-2 px-3  border-b border-slate-700">
             <div>
               <h1 className="text-lg font-bold text-white">
                 TechHub
@@ -292,14 +287,14 @@ const { cartCount } = useContext(CartContext); // add this line
               <a
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200  hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                className="flex items-center gap-3 px-2 py-2 text-gray-200  hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
               >
                 Home
               </a>
 
               <a
                 href="#"
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                className="flex items-center gap-3 px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
               >
                 Products
               </a>
@@ -308,7 +303,7 @@ const { cartCount } = useContext(CartContext); // add this line
               <div>
                 <button
                   onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                  className="w-full flex items-center justify-between px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
                 >
                   <span>Categories</span>
                   <FiChevronDown className={`w-4 h-4 transition-transform ${mobileCategoriesOpen ? "rotate-180" : ""}`} />
@@ -318,16 +313,16 @@ const { cartCount } = useContext(CartContext); // add this line
                   <div className="mt-2 space-y-1 pl-3">
                     {Object.entries(categoryData).map(([category, data], idx) => (
                       <div key={idx} className="space-y-1">
-                        <div className="flex items-center gap-2 px-3 py-2 text-white font-medium">
-                          <span className="text-lg">{data.icon}</span>
-                          <span className="text-sm">{category}</span>
+                        <div className="flex items-center gap-2 px-3 py-2 text-white font-medium ">
+                          <span className="text-sm">{data.icon}</span>
+                          <span className="text-xs">{category}</span>
                         </div>
                         <div className="ml-8 space-y-1">
                           {data.subcategories.map((sub, subIdx) => (
                             <a
                               key={subIdx}
                               href="#"
-                              className="block px-3 py-1.5 text-sm text-gray-400 hover:text-white hover:bg-slate-800 rounded transition"
+                              className="block px-3 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-slate-800 rounded transition"
                             >
                               {sub}
                             </a>
@@ -341,21 +336,21 @@ const { cartCount } = useContext(CartContext); // add this line
 
               <a
                 href="#"
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                className="flex items-center gap-3 px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
               >
                 Deals
               </a>
 
               <a
                 href="#"
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                className="flex items-center gap-3 px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
               >
                 Contact
               </a>
              
               <a
                 href="/manage-products"
-                className="flex items-center gap-3 px-3 py-2.5 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition font-medium"
+                className="flex items-center gap-3 px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
               >
                 Manage Products
               </a>
@@ -363,11 +358,11 @@ const { cartCount } = useContext(CartContext); // add this line
           </div>
 
           {/* Mobile Menu Footer */}
-          <div className="pb-4 pt-2 px-4 border-t border-slate-700">
+          <div className="pb-4  px-4 border-t border-slate-700">
             {user ? (
               <div className="space-y-2">
                 <div className="px-4 py-2 text-white border-b border-slate-700 mb-2">
-                  <p className="font-semibold text-sm">{user.name || user.email}</p>
+                  <p className="font-semibold text-sm">{user?.role==="admin"?"Admin":user?.name || user?.email}</p>
                 </div>
                 <button
                   onClick={() => {

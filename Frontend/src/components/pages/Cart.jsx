@@ -1,10 +1,10 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { CartContext } from '../context/CartContext'
 import { FiShoppingCart, FiTrash2, FiMinus, FiPlus, FiArrowLeft } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import CartToast from '../CartToast'
 
-const Cart = () => {
+const Cart = ({setProducts}) => {
   const { cartItems, cartLoading, updateQuantity, removeFromCart } = useContext(CartContext)
   const navigate = useNavigate()
 
@@ -12,6 +12,13 @@ const Cart = () => {
     const price = item.productId?.price || 0
     return sum + price * item.quantity
   }, 0)
+
+  const handleCheckoutClick = () => {
+    console.log(cartItems)
+    setProducts(cartItems)
+    navigate('/checkout')
+  }
+
 
   /* ── Loading State (always check this first) ── */
   if (cartLoading) {
@@ -159,7 +166,10 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <button className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold transition shadow-lg shadow-blue-500/20 mb-3">
+                <button 
+                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold transition shadow-lg shadow-blue-500/20 mb-3"
+                onClick={handleCheckoutClick}
+                >
                   Proceed to Checkout
                 </button>
 

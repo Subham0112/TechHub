@@ -25,4 +25,5 @@ body('category').isIn(['mobile-accessories','gadgets']).withMessage('Invalid cat
 ],
 productController.updateProduct);
 
+
 module.exports = router;
