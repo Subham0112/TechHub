@@ -7,6 +7,7 @@ import ScrollToTop from './components/ScrollToTop.jsx'
 import Cart from './components/pages/Cart.jsx'
 import Footer from './components/Footer'
 import CheckoutPage from './components/pages/CheckoutPage.jsx'
+import ProductCategoryPage from './components/pages/ProductCategoryPage.jsx'
 import Alert from './components/Alert.jsx'
 import ProfilePage from './components/pages/ProfilePage.jsx'
 import ProtectedRoute from './components/Auth/ProtectedRoute.jsx'
@@ -35,6 +36,7 @@ const handleDismiss = () => setAlert(null);
         <Route path="/signup" element={<SignupPage handleAlert={handleAlert} />}/>
         <Route path="/login" element={<LoginPage handleAlert={handleAlert} />}/>
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/products/category/:category" element={<ProductCategoryPage />} />
         <Route path="/cart" element={
           <ProtectedRoute>
             <Cart setProducts={setProducts} />

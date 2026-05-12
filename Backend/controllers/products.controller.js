@@ -50,6 +50,18 @@ const getProductById = async (req, res) => {
         res.status(500).json({ message: "Server error, please try again later" });
     }
 }
+const getProductsByCategory = async (req, res) => {
+    try{
+        const products=await Product.find({ category: req.params.category });
+        if(!products || products.length === 0) {
+            return res.status(404).json({ message: "No products found in this category" });
+        }
+        res.status(200).json(products);
+    }catch(error){
+        console.log("Error getting products by category:", error);
+        res.status(500).json({ message: "Server error, please try again later" });
+    }
+}
 
 const updateProduct = async (req, res) => {
     if (!validationResult(req).isEmpty()) {
@@ -145,6 +157,7 @@ module.exports = {
     createProduct,
     getProductById,
     updateProduct,
+    getProductsByCategory,
     createOrder,
     getOrderById,
     getOrders,

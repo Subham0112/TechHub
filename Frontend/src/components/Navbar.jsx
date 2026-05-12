@@ -14,8 +14,14 @@ const Navbar = () => {
   const profileRef = useRef(null); // Add this for profile dropdown
   const navigate = useNavigate();
   const { user, logout } = useContext(UserContext); // Get user and logout from context
-const { cartCount } = useContext(CartContext); // add this line
-  // Close categories dropdown on outside click
+const { cartCount } = useContext(CartContext); 
+
+const handleProductCategoryClick = (category) => {
+  const productCategory = category.toLowerCase();
+  console.log("Clicked category:", productCategory);
+  navigate(`/products/category/${productCategory}`);
+};
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -101,7 +107,9 @@ const { cartCount } = useContext(CartContext); // add this line
                       </p>
                       <div className="grid grid-rows-2 gap-6">
                         {Object.entries(categoryData).map(([category, data], idx) => (
-                          <div key={idx} className="hover:bg-slate-700 cursor-pointer p-3 rounded-lg transition">
+                          <div
+                         onClick={() => handleProductCategoryClick(category)}
+                         key={idx} className="hover:bg-slate-700 cursor-pointer p-3 rounded-lg transition">
                             <div className="flex items-center gap-3 text-white font-medium mb-2">
                               <span className="text-2xl">{data.icon}</span>
                               <span className="text-sm">{category}</span>
@@ -312,7 +320,10 @@ const { cartCount } = useContext(CartContext); // add this line
                 {mobileCategoriesOpen && (
                   <div className="mt-2 space-y-1 pl-3">
                     {Object.entries(categoryData).map(([category, data], idx) => (
-                      <div key={idx} className="space-y-1">
+                      <div onClick={() => handleProductCategoryClick(category)}
+                        
+                        key={idx} 
+                        className="space-y-1">
                         <div className="flex items-center gap-2 px-3 py-2 text-white font-medium ">
                           <span className="text-sm">{data.icon}</span>
                           <span className="text-xs">{category}</span>
