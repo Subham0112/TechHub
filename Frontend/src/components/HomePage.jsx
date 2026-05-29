@@ -37,12 +37,7 @@ const ProductCard = ({ product, handleCartClick, isAdmin }) => (  // ✅ receive
         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
       />
 
-      {/* ✅ Only show wishlist for non-admins */}
-      {!isAdmin && (
-        <button className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full hover:bg-white transition-colors">
-          <FiHeart className="w-4 h-4 text-slate-900" />
-        </button>
-      )}
+     
 
       {/* ✅ Quick Add — only for non-admins */}
       {!isAdmin && (

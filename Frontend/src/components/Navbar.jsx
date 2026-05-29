@@ -104,11 +104,11 @@ const handleSearchClick=()=>{
             </a>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
-              <a href="/" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
+            <div className="hidden lg:flex items-center gap-2 flex-1 justify-center">
+              <a href="/" className="px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
                 Home
               </a>
-              <a href="/products" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
+              <a href="/products" className="px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
                 Products
               </a>
               
@@ -116,7 +116,7 @@ const handleSearchClick=()=>{
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setCategoriesOpen(!categoriesOpen)}
-                  className="px-3 cursor-pointer py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium flex items-center gap-1 transition"
+                  className="px-4 cursor-pointer py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium flex items-center gap-1 transition"
                 >
                   Categories
                   <FiChevronDown className={`w-4 h-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`} />
@@ -161,14 +161,15 @@ const handleSearchClick=()=>{
 
             {/* Right Icons */}
             <div className="flex items-center gap-2">
+               <div className="w-[200px]">
+              <input ref={searchRef} type="text" placeholder="Search" className="p-0 text-gray-300 bg-white/10  hover:text-white focus:bg-slate-800 rounded-md transition w-[0px]"/>
+              </div>
               <button
               onClick={handleSearchClick}
               className="p-2 text-gray-300 cursor-pointer hover:text-white hover:bg-slate-800 rounded-md transition">
                 <FiSearch className="w-5 h-5" />
               </button>
-              <div className="w-[250px]">
-              <input ref={searchRef} type="text" placeholder="Search" className="p-0 text-gray-300 bg-white/10  hover:text-white focus:bg-slate-800 rounded-md transition w-[0px]"/>
-              </div>
+             
               { user?.role === "user" && <button className="p-2 text-gray-300  hover:text-white hover:bg-slate-800 rounded-md transition">
                 <FiHeart title="Favourites" className="w-5 h-5" />
               </button>}

@@ -48,6 +48,7 @@ export const CartProvider = ({ children }) => {
       showToast(`${product.name} added to cart!`);
     } catch (err) {
       showToast('Failed to add item. Please login.', 'error');
+      console.error('Add to cart error:', err);
     }
   };
 
@@ -60,6 +61,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(res.data.cart.items);
     } catch (err) {
       showToast('Failed to update quantity.', 'error');
+      console.error('Update cart error:', err);
     }
   };
 
@@ -72,6 +74,7 @@ export const CartProvider = ({ children }) => {
       showToast('Item removed from cart.');
     } catch (err) {
       showToast('Failed to remove item.', 'error');
+      console.error('Remove from cart error:', err);
     }
   };
 

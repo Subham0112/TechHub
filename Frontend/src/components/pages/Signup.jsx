@@ -32,7 +32,6 @@ const Signup = ({handleAlert}) => {
       return
     }
     try{
-      // Make API call to backend for signup
       const userData = {
         name: formData.name,
         phone: formData.phone,

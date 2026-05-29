@@ -14,7 +14,7 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
-  // Lock body scroll when modal open
+ 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'unset'
     return () => { document.body.style.overflow = 'unset' }

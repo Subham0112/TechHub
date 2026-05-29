@@ -48,17 +48,26 @@ const OrderHistory = () => {
               <li key={order._id} className='bg-slate-700/50 border border-slate-600 rounded-xl p-4'>
                 <div className='flex items-center justify-between'>
                   <p className='font-bold'>Order #{order._id}</p>
-                  <p className='text-slate-500 text-sm'>Status: {order.orderStatus || order.status}</p>
+                  <div className={` px-2 py-1 rounded-full text-xs font-semibold ${
+                    order.orderStatus==="pending"?"bg-amber-400/30 border-amber-400/30":
+                    order.orderStatus==="accepted"?"bg-emerald-400/30 border-emerald-400/30":
+                    order.orderStatus==="on the way"?"bg-violet-400/30 border-violet-400/30":
+                    order.orderStatus==="delivered"?"bg-emerald-400/30 border-emerald-400/30": "bg-rose-400/30 border-rose-400/30"
+                    }`}>
+                  <p className='text-white text-sm'>Status: {order.orderStatus || order.status}</p>
+                  </div>
                 </div>
                 <div className='mt-2 text-slate-300 text-sm'>
                   <p>Total: ${order.totalPrice?.toFixed?.(2) ?? order.totalPrice}</p>
                   <p className='text-slate-400 text-xs'>Placed: {new Date(order.createdAt).toLocaleString()}</p>
-                  <div className='mt-2'>
+                  <div className='mt-2 border border-slate-800 bg-slate-800/50 rounded-xl p-4'>
                     {order.items?.map((item, idx) => (
-                      <div key={idx} className='flex items-center gap-3 text-slate-300 text-sm'>
+                      <div key={idx} className='flex  items-center gap-3 text-slate-300 text-sm'>
                         <span className='font-medium'>{item.productId?.name || item.name || 'Product'}</span>
+                        
                         <span className='text-slate-500'>x{item.quantity}</span>
-                        <span className='text-slate-400'>${item.subtotal?.toFixed?.(2) ?? item.price}</span>
+                        <span className='text-green-400'>${item.subtotal?.toFixed?.(2) ?? item.price}</span>
+                       
                       </div>
                     ))}
                   </div>

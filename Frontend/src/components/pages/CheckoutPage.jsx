@@ -1,10 +1,10 @@
 // components/pages/CheckoutPage.jsx
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { CartContext } from '../context/CartContext'
 import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag } from 'react-icons/fi'
 
-// ── Step indicator ──────────────────────────────────────────────
 const Step = ({ number, label, active, done }) => (
   <div className='flex items-center gap-2'>
     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all
@@ -35,7 +35,7 @@ const inputCls = (err) =>
    text-white text-sm rounded-xl px-4 py-3 placeholder-slate-600
    focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200`
 
-// ── Success screen ──────────────────────────────────────────────
+
 const SuccessScreen = ({ onContinue }) => (
   <div className='min-h-screen bg-[#0a0f1e] flex items-center justify-center px-4'>
     <div className='text-center max-w-md'>
@@ -61,11 +61,12 @@ const SuccessScreen = ({ onContinue }) => (
 )
 
 // ── Main Checkout ───────────────────────────────────────────────
-const CheckoutPage = ({ products }) => {
+const CheckoutPage = () => {
   const navigate = useNavigate()
   const [step, setStep] = useState(1) // 1 = address, 2 = review, 3 = success
   const [placing, setPlacing] = useState(false)
   const [errors, setErrors] = useState({})
+  const { cartItems } = useContext(CartContext)
 
   const [address, setAddress] = useState({
     fullName: '',
@@ -78,7 +79,7 @@ const CheckoutPage = ({ products }) => {
   })
 
   // products here are actually cartItems: { productId: {...}, quantity, _id }
-  const items = products.map(item => ({
+  const items = cartItems.map(item => ({
     id: item.productId?._id,
     name: item.productId?.name,
     image: item.productId?.image,
@@ -329,7 +330,7 @@ const CheckoutPage = ({ products }) => {
 
           {/* ── RIGHT: Order Summary (sticky) ── */}
           <div className='lg:col-span-2'>
-            <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 sticky top-24'>
+            <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 '>
               <h3 className='text-sm font-bold text-white mb-4 uppercase tracking-widest'>
                 Order Summary
               </h3>
