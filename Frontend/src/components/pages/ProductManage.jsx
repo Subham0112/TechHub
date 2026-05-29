@@ -12,13 +12,14 @@ const StatCard = ({ label, value, accent }) => (
   </div>
 )
 
-const ManageProducts = () => {
+const ManageProducts = ({ handleAlert }) => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   const closeEditModal = () => {
     setIsEditModalOpen(false)
@@ -28,6 +29,16 @@ const ManageProducts = () => {
   const handleEditClick = (product) => {
     setSelectedProduct(product)
     setIsEditModalOpen(true)
+  }
+  const handleDeleteClick = async (product) => {
+    try {
+      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/products/${product._id}`)
+      const updatedProducts = res.data ? res.data : products.filter(p => p._id !== product._id && p.id !== product.id)
+      setProducts(updatedProducts)
+      handleAlert({ type: 'success', title: 'Product deleted', description: 'Your product has been deleted successfully' })
+    } catch (error) {
+      console.log('Product delete error:', error)
+    }
   }
 
   const handleUpdateProduct = async (updatedData) => {
@@ -39,15 +50,24 @@ const ManageProducts = () => {
       const updatedProduct = res.data && res.data._id ? res.data : { ...selectedProduct, ...updatedData }
       setProducts(prev => prev.map(p => (p._id === id || p.id === id) ? updatedProduct : p))
       closeEditModal()
+      handleAlert({ type: 'success', title: 'Product updated', description: 'Your changes have been saved successfully' })
     } catch (error) {
       console.log('Product update error:', error)
     }
   }
 
+  // Debounce the search input to avoid firing a request on every keystroke
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search), 400)
+    return () => clearTimeout(handler)
+  }, [search])
+
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true)
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/products/`)
+        const q = debouncedSearch || ""
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/products?search=${encodeURIComponent(q)}`)
         setProducts(res.data)
       } catch (error) {
         console.log("Product fetch error:", error)
@@ -56,18 +76,12 @@ const ManageProducts = () => {
       }
     }
     fetchProducts()
-  }, [])
-
+  }, [debouncedSearch])
   const handleAddProduct = async (productData) => {
     const res = await axios.post(`${import.meta.env.VITE_API_URL}/products/`, productData)
     setProducts(prev => [...prev, res.data])
+    handleAlert({ type: 'success', title: 'Product added', description: 'Your product has been added successfully' })
   }
-
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase()) ||
-    (p.type || '').toLowerCase().includes(search.toLowerCase())
-  )
 
   const totalStock = products.reduce((sum, p) => sum + (p.stock || 0), 0)
   const inStock = products.filter(p => p.stock > 0).length
@@ -140,8 +154,7 @@ const ManageProducts = () => {
               {/* Table header row */}
               <div className='bg-slate-800/80 px-5 py-3 flex items-center justify-between border-b border-slate-700/60'>
                 <p className='text-xs text-slate-400'>
-                  Showing <span className='text-white font-semibold'>{filtered.length}</span> of{' '}
-                  <span className='text-white font-semibold'>{products.length}</span> products
+                  Showing <span className='text-white font-semibold'>{products.length}</span> products
                 </p>
               </div>
 
@@ -158,8 +171,8 @@ const ManageProducts = () => {
                   </thead>
 
                   <tbody className='bg-[#0d1424] divide-y divide-slate-800'>
-                    {filtered.length > 0 ? (
-                      filtered.map((product, index) => (
+                    {products.length > 0 ? (
+                      products.map((product, index) => (
                         <tr
                           key={index}
                           className='hover:bg-slate-800/40 transition-colors duration-150 group'
@@ -169,7 +182,7 @@ const ManageProducts = () => {
                             <div className='flex items-center gap-3'>
                               <div className='flex-shrink-0 h-10 w-10 rounded-xl overflow-hidden border border-slate-700 bg-slate-800'>
                                 <img
-                                  src={product.image}
+                                  src={product.image || "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?&q=80"}
                                   alt={product.name}
                                   className='h-full w-full object-cover'
                                   onError={e => { e.target.src = 'https://placehold.co/40x40/1e293b/94a3b8?text=?' }}
@@ -241,7 +254,9 @@ const ManageProducts = () => {
                                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z' />
                                 </svg>
                               </button>
-                              <button className='p-1.5 rounded-lg bg-slate-700 hover:bg-rose-600 text-slate-400 hover:text-white transition-all duration-150' title='Delete'>
+                              <button
+                                onClick={() => handleDeleteClick(product)}
+                                className='p-1.5 rounded-lg bg-slate-700 hover:bg-rose-600 text-slate-400 hover:text-white transition-all duration-150' title='Delete'>
                                 <svg className='w-3.5 h-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 00-1-1H9a1 1 0 00-1 1m10 0H5' />
                                 </svg>

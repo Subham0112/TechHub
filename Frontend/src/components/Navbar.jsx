@@ -1,16 +1,20 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiHeart, FiShoppingCart, FiMenu, FiX, FiChevronDown, FiUser, FiLogOut } from "react-icons/fi";
+import gsap from "gsap";
+
 import { UserContext } from "./context/UserContext"; // Adjust path
 import { CartContext } from "./context/CartContext";
 
 const Navbar = () => {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   
   const dropdownRef = useRef(null);
+  const searchRef = useRef(); // Add this for search input
   const profileRef = useRef(null); // Add this for profile dropdown
   const navigate = useNavigate();
   const { user, logout } = useContext(UserContext); // Get user and logout from context
@@ -18,9 +22,28 @@ const { cartCount } = useContext(CartContext);
 
 const handleProductCategoryClick = (category) => {
   const productCategory = category.toLowerCase();
-  console.log("Clicked category:", productCategory);
   navigate(`/products/category/${productCategory}`);
 };
+
+const handleSearchClick=()=>{
+  if (searchRef.current && !searchOpen) {
+    gsap.to(searchRef.current, {
+      width: "200px",
+      padding: "0.5rem 0.75rem",
+      duration: 0.5,
+      ease: "power3.inOut",
+    });
+    setSearchOpen(true);
+}else{
+  gsap.to(searchRef.current, {
+    width: "0px",
+    padding: "0",
+    duration: 0.5,
+    ease: "power3.inOut",
+  });
+  setSearchOpen(false);
+}
+}
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -81,11 +104,11 @@ const handleProductCategoryClick = (category) => {
             </a>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
+            <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
               <a href="/" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
                 Home
               </a>
-              <a href="#" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
+              <a href="/products" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
                 Products
               </a>
               
@@ -131,10 +154,6 @@ const handleProductCategoryClick = (category) => {
                   </div>
                 )}
               </div>
-
-              <a href="#" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
-                Deals
-              </a>
               <a href="#" className="px-3 py-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md text-sm font-medium transition">
                 Contact
               </a>
@@ -142,10 +161,14 @@ const handleProductCategoryClick = (category) => {
 
             {/* Right Icons */}
             <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-300 cursor-pointer hover:text-white hover:bg-slate-800 rounded-md transition">
+              <button
+              onClick={handleSearchClick}
+              className="p-2 text-gray-300 cursor-pointer hover:text-white hover:bg-slate-800 rounded-md transition">
                 <FiSearch className="w-5 h-5" />
               </button>
-              
+              <div className="w-[250px]">
+              <input ref={searchRef} type="text" placeholder="Search" className="p-0 text-gray-300 bg-white/10  hover:text-white focus:bg-slate-800 rounded-md transition w-[0px]"/>
+              </div>
               { user?.role === "user" && <button className="p-2 text-gray-300  hover:text-white hover:bg-slate-800 rounded-md transition">
                 <FiHeart title="Favourites" className="w-5 h-5" />
               </button>}
@@ -241,7 +264,7 @@ const handleProductCategoryClick = (category) => {
               ) : (
                 <button
                   onClick={() => navigate('/login')}
-                  className="hidden cursor-pointer md:block px-3 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-md md:ml-3 text-sm font-semibold transition shadow-lg"
+                  className="hidden cursor-pointer lg:block px-3 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-md md:ml-3 text-sm font-semibold transition shadow-lg"
                 >
                   LogIn
                 </button>
@@ -249,7 +272,7 @@ const handleProductCategoryClick = (category) => {
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md cursor-pointer"
+                className="lg:hidden p-2 text-gray-300 hover:text-white hover:bg-slate-800 rounded-md cursor-pointer"
               >
                 <FiMenu className="w-6 h-6" />
               </button>
@@ -268,7 +291,7 @@ const handleProductCategoryClick = (category) => {
 
       {/* Mobile Side Menu */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-linear-to-r from-[#362F4F] to-[#1A3263] shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 h-full w-80 bg-linear-to-r from-[#362F4F] to-[#1A3263] shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -300,12 +323,7 @@ const handleProductCategoryClick = (category) => {
                 Home
               </a>
 
-              <a
-                href="#"
-                className="flex items-center gap-3 px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
-              >
-                Products
-              </a>
+            
 
               {/* Mobile Categories Dropdown */}
               <div>
@@ -344,13 +362,6 @@ const handleProductCategoryClick = (category) => {
                   </div>
                 )}
               </div>
-
-              <a
-                href="#"
-                className="flex items-center gap-3 px-2 py-2 text-gray-200 hover:text-white hover:bg-slate-800 rounded-lg transition text-sm"
-              >
-                Deals
-              </a>
 
               <a
                 href="#"

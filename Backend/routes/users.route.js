@@ -16,6 +16,7 @@ router.route('/login').post([
     userController.loginUser);
 
     router.route("/profile").get(authMiddleware, userController.getUserProfile);
+    router.route("/profile").put(authMiddleware, userController.updateProfile);
 
     router.route("/logout").post(authMiddleware, userController.logoutUser);
 

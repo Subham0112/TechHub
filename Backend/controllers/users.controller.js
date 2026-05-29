@@ -87,6 +87,16 @@ const getUserProfile = async (req, res) => {
   res.status(200).json({ user: req.user });
 }
 
+const updateProfile = async (req, res) => {
+  try {
+    const { name, email, phone, address } = req.body;
+    const user = await User.findByIdAndUpdate(req.user._id, { name, email, phone, address });
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error, please try again later" });
+  }
+};
 const logoutUser = async (req, res) => {
   res.clearCookie('token');
   res.status(200).json({ message: "User logged out successfully" });
@@ -96,5 +106,6 @@ module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
+  updateProfile,
   logoutUser,
 };

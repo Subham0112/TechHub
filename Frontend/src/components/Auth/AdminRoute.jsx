@@ -11,7 +11,7 @@ const AdminRoute = ({ children }) => {
       navigate("/login");
     }
     if (!loading && user && user.role !== "admin") {
-      navigate("/"); // logged in but not admin → go home
+      navigate("/");
     }
   }, [user, loading, navigate]);
 

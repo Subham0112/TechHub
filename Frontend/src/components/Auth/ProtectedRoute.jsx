@@ -4,7 +4,7 @@ import { UserContext } from "../context/UserContext";
 import { useEffect } from "react";
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useContext(UserContext); // ← reuse existing context, no extra API call
+  const { user, loading } = useContext(UserContext); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  if (!user) return null; // navigating to /login, render nothing
+  if (!user) return null;
 
   return children;
 };

@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+@theme {
+  --breakpoint-xs: 30rem; /* 480px */
+}
 html{
   scroll-behavior: smooth;
 }
@@ -14,3 +17,4 @@ html{
 .animate-slide-up {
   animation: slide-up 0.25s ease-out;
 }
+

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Navbar from '../Navbar'
 import { FiUser, FiMail, FiHome, FiLock, FiEye, FiEyeOff, FiShield, FiTag, FiZap, FiGithub,FiPhone, FiShoppingBag } from 'react-icons/fi'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { FcGoogle } from 'react-icons/fc'
 
@@ -15,7 +16,7 @@ const Signup = ({handleAlert}) => {
     confirmPassword: '',
     address: '',
   })
-
+  const navigate = useNavigate()
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -46,6 +47,7 @@ const Signup = ({handleAlert}) => {
         title: 'Success',
         description: 'You have successfully signed up!'
       });
+      navigate('/login')
     }catch(error){
       console.error('Signup error:', error)
       handleAlert({

@@ -7,6 +7,8 @@ import ScrollToTop from './components/ScrollToTop.jsx'
 import Cart from './components/pages/Cart.jsx'
 import Footer from './components/Footer'
 import CheckoutPage from './components/pages/CheckoutPage.jsx'
+import Orders from './components/pages/OrderHistory.jsx'
+import ProductsPage from './components/pages/ProductsPage.jsx'
 import ProductCategoryPage from './components/pages/ProductCategoryPage.jsx'
 import Alert from './components/Alert.jsx'
 import ProfilePage from './components/pages/ProfilePage.jsx'
@@ -37,11 +39,18 @@ const handleDismiss = () => setAlert(null);
         <Route path="/login" element={<LoginPage handleAlert={handleAlert} />}/>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/products/category/:category" element={<ProductCategoryPage />} />
+        <Route path="/products" element={<ProductsPage />} />
         <Route path="/cart" element={
           <ProtectedRoute>
             <Cart setProducts={setProducts} />
           </ProtectedRoute> }
           />
+          <Route path="/orders" element={
+            <ProtectedRoute>
+              <Orders/>
+            </ProtectedRoute>
+          }/>
+
         <Route path="/checkout" element={
           <ProtectedRoute>
             <CheckoutPage products={products} />
@@ -49,13 +58,13 @@ const handleDismiss = () => setAlert(null);
         } />
            <Route path="/manage-products" element={
             <AdminRoute>
-              <ProductManage />
+              <ProductManage handleAlert={handleAlert} />
             </AdminRoute>
           } />
 
           <Route path="/manage-orders" element={
             <AdminRoute>
-              <ManageOrders />
+              <ManageOrders  />
             </AdminRoute>
           } />
            

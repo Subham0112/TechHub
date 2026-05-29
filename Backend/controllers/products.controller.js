@@ -5,7 +5,20 @@ const slugify = require("slugify");
     
 const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
+        const query = {};
+
+        if (req.query.search) {
+            const search = req.query.search.trim();
+            if (search.length) {
+                query.$or = [
+                    { name: { $regex: search, $options: 'i' } },
+                    { category: { $regex: search, $options: 'i' } },
+                    { type: { $regex: search, $options: 'i' } },
+                ];
+            }
+        }
+
+        const products = await Product.find(query);
         res.status(200).json(products);
     } catch (error) {
         console.error("Error getting products:", error);
@@ -90,6 +103,18 @@ const updateProduct = async (req, res) => {
         res.status(500).json({ message: "Server error, please try again later" });
     }
 };
+const deleteProduct = async (req, res) => {
+    try {
+        const product = await Product.findByIdAndDelete(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        res.status(200).json(product);
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        res.status(500).json({ message: "Server error, please try again later" });
+    }
+};
 const createOrder = async (req, res) => {
   try {
     const { items, totalPrice, shippingAddress } = req.body
@@ -130,9 +155,9 @@ const getOrderById = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate('userId', 'name email')              // ✅ get customer name
-      .populate('items.productId', 'name image')     // ✅ get product names
-      .sort({ createdAt: -1 })                       // newest first
+      .populate('userId', 'name email')              
+      .populate('items.productId', 'name image')     
+      .sort({ createdAt: -1 })                      
     res.status(200).json(orders)
   } catch (error) {
     console.error("Error getting orders:", error)
@@ -162,4 +187,5 @@ module.exports = {
     getOrderById,
     getOrders,
     updateOrderStatus,
+    deleteProduct
 };

@@ -25,6 +25,8 @@ body('category').isIn(['mobile-accessories','gadgets']).withMessage('Invalid cat
 ],
 productController.updateProduct);
 
+router.route("/:id").delete(productController.deleteProduct);
+
 router.route("/category/:category").get(productController.getProductsByCategory);
 
 module.exports = router;
