@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Navbar from './components/Navbar'
-import Homepage from './components/Homepage.jsx'
+import Homepage from './components/HomePage.jsx'
 import SignupPage from './components/pages/Signup.jsx'
 import LoginPage from './components/pages/Login.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'

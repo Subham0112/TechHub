@@ -141,8 +141,11 @@ const ProductSection = React.memo(({ title, products, handleCartClick, isAdmin }
           </button>
         </div>
       </div>
-
-      <div ref={containerRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-4" onScroll={checkScroll}>
+{products.length === 0 ? (
+    <div className="flex items-center justify-center h-40 bg-slate-800/50 rounded-xl border border-slate-700/50">
+     <p className="text-white">No products available.</p>
+     </div>
+      ) : ( <div ref={containerRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-4" onScroll={checkScroll}>
         {products.map((product) => (
           <ProductCard
             key={product._id}
@@ -152,6 +155,8 @@ const ProductSection = React.memo(({ title, products, handleCartClick, isAdmin }
           />
         ))}
       </div>
+        
+      )}
     </div>
   )
 })

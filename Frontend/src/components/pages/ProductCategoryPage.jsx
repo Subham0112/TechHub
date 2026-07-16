@@ -7,22 +7,27 @@ const ProductCategoryPage = () => {
   const [loading, setLoading] = useState(true)
   const { category } = useParams()
 
-  useEffect(() => {
-    const fetchProductsByCategory = async () => {
-      try {
-        setLoading(true)
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/products/category/${category}`
-        )
-        setProducts(response.data)
-      } catch (error) {
+useEffect(() => {
+  const fetchProductsByCategory = async () => {
+    try {
+      setLoading(true)
+      setProducts([]) 
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/products/category/${category}`
+      )
+      setProducts(response.data)
+    } catch (error) {
+      if (error.response?.status === 404) {
+        setProducts([])
+      } else {
         console.error('Error fetching products by category:', error)
-      } finally {
-        setLoading(false)
       }
+    } finally {
+      setLoading(false)
     }
-    fetchProductsByCategory()
-  }, [category])
+  }
+  fetchProductsByCategory()
+}, [category])
 
   const categoryLabel =
     category

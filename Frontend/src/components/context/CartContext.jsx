@@ -78,11 +78,22 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Empty the entire cart — used after a successful checkout
+  const clearCart = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/cart/clear`);
+      setCartItems([]);
+    } catch (err) {
+      console.error('Clear cart error:', err);
+      throw err; // let the caller (CheckoutPage) decide how to handle this
+    }
+  };
+
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <CartContext.Provider
-      value={{ cartItems, cartCount, cartLoading, addToCart, updateQuantity, removeFromCart, toast }}
+      value={{ cartItems, cartCount, cartLoading, addToCart, updateQuantity, removeFromCart, clearCart, toast }}
     >
       {children}
     </CartContext.Provider>

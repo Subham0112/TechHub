@@ -3,7 +3,7 @@ import React, { useState, useContext } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
-import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag } from 'react-icons/fi'
+import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag, FiSmartphone, FiCreditCard, FiTruck } from 'react-icons/fi'
 
 const Step = ({ number, label, active, done }) => (
   <div className='flex items-center gap-2'>
@@ -19,7 +19,6 @@ const Step = ({ number, label, active, done }) => (
 
 const Divider = () => <div className='flex-1 h-px bg-slate-700 mx-2 hidden sm:block' />
 
-// ── Input component ─────────────────────────────────────────────
 const Field = ({ label, error, children }) => (
   <div>
     <label className='block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5'>
@@ -35,6 +34,45 @@ const inputCls = (err) =>
    text-white text-sm rounded-xl px-4 py-3 placeholder-slate-600
    focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200`
 
+// ── Payment method options ──
+const PAYMENT_OPTIONS = [
+  { id: 'esewa', label: 'eSewa', desc: 'Pay online via eSewa', icon: FiSmartphone, accent: 'group-hover:border-emerald-500/50 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10', iconColor: 'text-emerald-400' },
+  { id: 'khalti', label: 'Khalti', desc: 'Pay online via Khalti', icon: FiCreditCard, accent: 'group-hover:border-violet-500/50 peer-checked:border-violet-500 peer-checked:bg-violet-500/10', iconColor: 'text-violet-400' },
+  { id: 'cod', label: 'Cash on Delivery', desc: 'Pay when your order arrives', icon: FiTruck, accent: 'group-hover:border-amber-500/50 peer-checked:border-amber-500 peer-checked:bg-amber-500/10', iconColor: 'text-amber-400' },
+]
+
+const PaymentMethodSelector = ({ value, onChange, error }) => (
+  <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-5'>
+    <div className='flex items-center gap-2 mb-4'>
+      <FiCreditCard className='w-4 h-4 text-indigo-400' />
+      <span className='text-sm font-semibold text-white'>Payment Method</span>
+    </div>
+
+    <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+      {PAYMENT_OPTIONS.map(opt => {
+        const Icon = opt.icon
+        return (
+          <label key={opt.id} className='group cursor-pointer'>
+            <input
+              type='radio'
+              name='paymentMethod'
+              value={opt.id}
+              checked={value === opt.id}
+              onChange={() => onChange(opt.id)}
+              className='peer sr-only'
+            />
+            <div className={`flex flex-col items-center text-center gap-2 border-2 border-slate-700 rounded-xl px-4 py-4 transition-all duration-150 ${opt.accent}`}>
+              <Icon className={`w-5 h-5 ${opt.iconColor}`} />
+              <span className='text-sm font-semibold text-white'>{opt.label}</span>
+              <span className='text-[11px] text-slate-500'>{opt.desc}</span>
+            </div>
+          </label>
+        )
+      })}
+    </div>
+    {error && <p className='text-red-400 text-xs mt-3'>{error}</p>}
+  </div>
+)
 
 const SuccessScreen = ({ onContinue }) => (
   <div className='min-h-screen bg-[#0a0f1e] flex items-center justify-center px-4'>
@@ -63,10 +101,12 @@ const SuccessScreen = ({ onContinue }) => (
 // ── Main Checkout ───────────────────────────────────────────────
 const CheckoutPage = () => {
   const navigate = useNavigate()
-  const [step, setStep] = useState(1) // 1 = address, 2 = review, 3 = success
+  const [step, setStep] = useState(1) // 1 = address, 2 = review + payment, 3 = success
   const [placing, setPlacing] = useState(false)
   const [errors, setErrors] = useState({})
-  const { cartItems } = useContext(CartContext)
+  const [paymentMethod, setPaymentMethod] = useState('')
+  const [paymentError, setPaymentError] = useState('')
+  const { cartItems, clearCart } = useContext(CartContext)
 
   const [address, setAddress] = useState({
     fullName: '',
@@ -78,7 +118,6 @@ const CheckoutPage = () => {
     notes: '',
   })
 
-  // products here are actually cartItems: { productId: {...}, quantity, _id }
   const items = cartItems.map(item => ({
     id: item.productId?._id,
     name: item.productId?.name,
@@ -90,7 +129,6 @@ const CheckoutPage = () => {
 
   const totalPrice = items.reduce((sum, i) => sum + i.subtotal, 0)
 
-  // ── Validation ──
   const validate = () => {
     const e = {}
     if (!address.fullName.trim()) e.fullName = 'Full name is required'
@@ -98,7 +136,6 @@ const CheckoutPage = () => {
     if (!address.street.trim())   e.street   = 'Street address is required'
     if (!address.city.trim())     e.city     = 'City is required'
     if (!address.state.trim())    e.state    = 'State / Province is required'
-    
     if (!address.country.trim())  e.country  = 'Country is required'
     return e
   }
@@ -116,40 +153,51 @@ const CheckoutPage = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
-  // Build the full shipping address string for the backend
   const buildShippingAddress = () =>
     `${address.fullName}, ${address.street}, ${address.city}, ${address.state} , ${address.country}${address.notes ? ` (${address.notes})` : ''}`
 
-  // ── Place Order — one POST per cart item ──
   const handlePlaceOrder = async () => {
-  setPlacing(true)
-  try {
-    const shippingAddress = buildShippingAddress()
+    if (!paymentMethod) {
+      setPaymentError('Please select a payment method')
+      return
+    }
+    setPaymentError('')
+    setPlacing(true)
+    try {
+      const shippingAddress = buildShippingAddress()
 
-    // ✅ One single request with all items
-    await axios.post(
-      `${import.meta.env.VITE_API_URL}/orders/`,
-      {
-        items: items.map(item => ({
-          productId: item.id,
-          quantity:  item.quantity,
-          price:     item.price,
-          subtotal:  item.subtotal,
-        })),
-        totalPrice,
-        shippingAddress,
-      },
-      { withCredentials: true }
-    )
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/orders/`,
+        {
+          items: items.map(item => ({
+            productId: item.id,
+            quantity:  item.quantity,
+            price:     item.price,
+            subtotal:  item.subtotal,
+          })),
+          totalPrice,
+          shippingAddress,
+          paymentMethod,
+        },
+        { withCredentials: true }
+      )
 
-    setStep(3)
-  } catch (err) {
-    console.error('Order error:', err)
-    alert('Something went wrong placing your order. Please try again.')
-  } finally {
-    setPlacing(false)
+      // Empty the cart now that the order has been placed
+      try {
+        await clearCart()
+      } catch (clearErr) {
+        console.error('Cart clear error:', clearErr)
+        // don't block the success screen just because clearing failed
+      }
+
+      setStep(3)
+    } catch (err) {
+      console.error('Order error:', err)
+      alert('Something went wrong placing your order. Please try again.')
+    } finally {
+      setPlacing(false)
+    }
   }
-}
 
   if (step === 3) return <SuccessScreen onContinue={() => navigate('/')} />
 
@@ -159,7 +207,6 @@ const CheckoutPage = () => {
 
       <div className='max-w-6xl mx-auto px-4 sm:px-6 py-10'>
 
-        {/* ── Top bar ── */}
         <div className='flex items-center gap-4 mb-10'>
           <button
             onClick={() => step === 1 ? navigate('/cart') : setStep(1)}
@@ -176,10 +223,8 @@ const CheckoutPage = () => {
 
         <div className='grid grid-cols-1 lg:grid-cols-5 gap-8'>
 
-          {/* ── LEFT: Form / Review ── */}
           <div className='lg:col-span-3 space-y-6'>
 
-            {/* STEP 1 — Shipping Address */}
             {step === 1 && (
               <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 space-y-5'>
                 <div className='flex items-center gap-3 mb-2'>
@@ -192,7 +237,6 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Full Name + Phone */}
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <Field label='Full Name' error={errors.fullName}>
                     <input name='fullName' value={address.fullName} onChange={handleChange}
@@ -204,13 +248,11 @@ const CheckoutPage = () => {
                   </Field>
                 </div>
 
-                {/* Street */}
                 <Field label='Street Address' error={errors.street}>
                   <input name='street' value={address.street} onChange={handleChange}
                     placeholder='House no., Street, Area' className={inputCls(errors.street)} />
                 </Field>
 
-                {/* City + State */}
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <Field label='City' error={errors.city}>
                     <input name='city' value={address.city} onChange={handleChange}
@@ -222,7 +264,6 @@ const CheckoutPage = () => {
                   </Field>
                 </div>
 
-                {/* ZIP + Country */}
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                   <Field label='Country' error={errors.country}>
                     <input name='country' value={address.country} onChange={handleChange}
@@ -230,7 +271,6 @@ const CheckoutPage = () => {
                   </Field>
                 </div>
 
-                {/* Delivery Notes */}
                 <Field label='Delivery Notes (optional)'>
                   <textarea name='notes' value={address.notes} onChange={handleChange}
                     rows={2} placeholder='e.g. Ring bell twice, leave at door...'
@@ -246,11 +286,9 @@ const CheckoutPage = () => {
               </div>
             )}
 
-            {/* STEP 2 — Review */}
             {step === 2 && (
               <div className='space-y-4'>
 
-                {/* Address review card */}
                 <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-5'>
                   <div className='flex items-center justify-between mb-3'>
                     <div className='flex items-center gap-2'>
@@ -272,7 +310,6 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* Items review */}
                 <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-5'>
                   <div className='flex items-center gap-2 mb-4'>
                     <FiPackage className='w-4 h-4 text-indigo-400' />
@@ -303,7 +340,12 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Place Order */}
+                <PaymentMethodSelector
+                  value={paymentMethod}
+                  onChange={(val) => { setPaymentMethod(val); setPaymentError('') }}
+                  error={paymentError}
+                />
+
                 <button
                   onClick={handlePlaceOrder}
                   disabled={placing}
@@ -328,7 +370,6 @@ const CheckoutPage = () => {
             )}
           </div>
 
-          {/* ── RIGHT: Order Summary (sticky) ── */}
           <div className='lg:col-span-2'>
             <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 '>
               <h3 className='text-sm font-bold text-white mb-4 uppercase tracking-widest'>
