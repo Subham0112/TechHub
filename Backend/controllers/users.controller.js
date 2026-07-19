@@ -90,7 +90,11 @@ const getUserProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const { name, email, phone, address } = req.body;
-    const user = await User.findByIdAndUpdate(req.user._id, { name, email, phone, address });
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, email, phone, address },
+      { new: true, runValidators: true }
+    ).select('-password');
     res.status(200).json({ user });
   } catch (error) {
     console.error("Error updating profile:", error);

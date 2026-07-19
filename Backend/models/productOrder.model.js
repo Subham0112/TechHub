@@ -25,8 +25,18 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ['pending', 'accepted', 'on the way','delivered', 'cancelled'],
+    enum: ['pending', 'accepted', 'preparing', 'on the way', 'delivered', 'cancelled'],
     default: 'pending'
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['esewa', 'khalti', 'cod'],
+    required: true
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['paid', 'unpaid'],
+    default: 'unpaid'
   },
 }, { timestamps: true })
 
