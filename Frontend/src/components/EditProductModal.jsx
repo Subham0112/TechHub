@@ -1,11 +1,11 @@
 // components/modals/EditProductModal.jsx
 import React, { useEffect, useState } from 'react'
+import { getImageUrl } from '../utils/imageUtils' // adjust path to match your project
 
 const initialFormState = {
   name: '',
   price: '',
   description: '',
-  image: '',
   category: 'mobile-accessories',
   type: '',
   stock: '',
@@ -13,6 +13,8 @@ const initialFormState = {
 
 const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
   const [formData, setFormData] = useState(initialFormState)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
@@ -27,20 +29,32 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
         name: product.name || '',
         price: product.price ?? '',
         description: product.description || '',
-        image: product.image || '',
         category: product.category || 'mobile-accessories',
         type: product.type || '',
         stock: product.stock ?? '',
       })
+      setImageFile(null)
+      setImagePreview(product.image ? getImageUrl(product.image) : '')
       setErrors({})
     }
 
     if (!isOpen) {
       setFormData(initialFormState)
+      setImageFile(null)
+      setImagePreview('')
       setErrors({})
       setLoading(false)
     }
   }, [isOpen, product])
+
+  // only revoke blob previews we created, not the server image URL
+  useEffect(() => {
+    return () => {
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview)
+      }
+    }
+  }, [imagePreview])
 
   const validate = () => {
     const e = {}
@@ -58,6 +72,13 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
+  const handleImageChange = (e) => {
+    const selected = e.target.files[0]
+    if (!selected) return
+    setImageFile(selected)
+    setImagePreview(URL.createObjectURL(selected))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     const validationErrors = validate()
@@ -68,11 +89,17 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
 
     setLoading(true)
     try {
-      await onSubmit({
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-      })
+      const payload = new FormData()
+      payload.append('name', formData.name)
+      payload.append('price', Number(formData.price))
+      payload.append('description', formData.description)
+      payload.append('category', formData.category)
+      payload.append('type', formData.type)
+      payload.append('stock', Number(formData.stock))
+      // only send a new image if the user picked one; backend keeps the old one otherwise
+      if (imageFile) payload.append('image', imageFile)
+
+      await onSubmit(payload)
       onClose()
     } catch (err) {
       console.error(err)
@@ -211,22 +238,23 @@ const EditProductModal = ({ isOpen, onClose, onSubmit, product }) => {
 
           <div>
             <label className='block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider'>
-              Image URL <span className='text-slate-500 normal-case font-normal'>(optional)</span>
+              Product Image <span className='text-slate-500 normal-case font-normal'>(optional)</span>
             </label>
             <div className='flex gap-3 items-center'>
               <input
-                name='image'
-                value={formData.image}
-                onChange={handleChange}
-                placeholder='https://example.com/image.jpg'
-                className={`${inputClass('image')} flex-1`}
+                type='file'
+                accept='image/*'
+                onChange={handleImageChange}
+                className='w-full bg-slate-800/80 border border-slate-600 text-slate-300 text-sm rounded-lg
+                  file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0
+                  file:bg-indigo-600 file:text-white file:text-xs file:font-semibold file:cursor-pointer
+                  hover:file:bg-indigo-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500'
               />
-              {formData.image && (
+              {imagePreview && (
                 <img
-                  src={formData.image}
+                  src={imagePreview}
                   alt='preview'
-                  className='h-10 w-10 rounded-lg object-cover border border-slate-600 flex-shrink-0'
-                  onError={(e) => { e.target.style.display = 'none' }}
+                  className='h-14 w-14 rounded-lg object-cover border border-slate-600 flex-shrink-0'
                 />
               )}
             </div>

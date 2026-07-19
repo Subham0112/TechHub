@@ -6,19 +6,26 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
     name: '',
     price: '',
     description: '',
-    image: '',
     category: 'mobile-accessories',
     type: '',
     stock: '',
   })
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
- 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'unset'
     return () => { document.body.style.overflow = 'unset' }
   }, [isOpen])
+
+  // clean up the blob preview URL when it changes/unmounts
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview)
+    }
+  }, [imagePreview])
 
   const validate = () => {
     const e = {}
@@ -36,6 +43,19 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
+  const handleImageChange = (e) => {
+    const selected = e.target.files[0]
+    if (!selected) return
+    setImageFile(selected)
+    setImagePreview(URL.createObjectURL(selected))
+  }
+
+  const resetForm = () => {
+    setFormData({ name: '', price: '', description: '', category: 'mobile-accessories', type: '', stock: '' })
+    setImageFile(null)
+    setImagePreview('')
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     const validationErrors = validate()
@@ -45,9 +65,18 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
     }
     setLoading(true)
     try {
-      await onSubmit({ ...formData, price: Number(formData.price), stock: Number(formData.stock) })
+      const payload = new FormData()
+      payload.append('name', formData.name)
+      payload.append('price', Number(formData.price))
+      payload.append('description', formData.description)
+      payload.append('category', formData.category)
+      payload.append('type', formData.type)
+      payload.append('stock', Number(formData.stock))
+      if (imageFile) payload.append('image', imageFile)
+
+      await onSubmit(payload)
       onClose()
-      setFormData({ name: '', price: '', description: '', image: '', category: 'mobile-accessories', type: '', stock: '' })
+      resetForm()
     } catch (err) {
       console.error(err)
     } finally {
@@ -190,25 +219,26 @@ const AddProductModal = ({ isOpen, onClose, onSubmit }) => {
             {errors.description && <p className='text-red-400 text-xs mt-1'>{errors.description}</p>}
           </div>
 
-          {/* Image URL */}
+          {/* Image Upload */}
           <div>
             <label className='block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider'>
-              Image URL <span className='text-slate-500 normal-case font-normal'>(optional)</span>
+              Product Image <span className='text-slate-500 normal-case font-normal'>(optional)</span>
             </label>
             <div className='flex gap-3 items-center'>
               <input
-                name='image'
-                value={formData.image}
-                onChange={handleChange}
-                placeholder='https://example.com/image.jpg'
-                className={`${inputClass('image')} flex-1`}
+                type='file'
+                accept='image/*'
+                onChange={handleImageChange}
+                className='w-full bg-slate-800/80 border border-slate-600 text-slate-300 text-sm rounded-lg
+                  file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0
+                  file:bg-indigo-600 file:text-white file:text-xs file:font-semibold file:cursor-pointer
+                  hover:file:bg-indigo-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500'
               />
-              {formData.image && (
+              {imagePreview && (
                 <img
-                  src={formData.image}
+                  src={imagePreview}
                   alt='preview'
-                  className='h-10 w-10 rounded-lg object-cover border border-slate-600 flex-shrink-0'
-                  onError={(e) => { e.target.style.display = 'none' }}
+                  className='h-14 w-14 rounded-lg object-cover border border-slate-600 flex-shrink-0'
                 />
               )}
             </div>

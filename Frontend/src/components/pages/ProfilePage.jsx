@@ -30,7 +30,7 @@ const InfoRow = ({ label, value, copyable }) => {
   return (
     <div className='flex items-start gap-3 py-3.5 first:pt-0 last:pb-0 border-b border-slate-800 last:border-0'>
       <div className='w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5'>
-        <Icon className='w-4 h-4 text-indigo-400' />
+        {/* <Icon className='w-4 h-4 text-indigo-400' /> */}
       </div>
       <div className='flex-1 min-w-0'>
         <p className='text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5'>{label}</p>
@@ -49,7 +49,7 @@ const InfoRow = ({ label, value, copyable }) => {
   )
 }
 
-const QuickLink = ({ label, description, onClick, disabled }) => (
+const QuickLink = ({ icon:Icon, label, description, onClick, disabled }) => (
   <button
     onClick={onClick}
     disabled={disabled}

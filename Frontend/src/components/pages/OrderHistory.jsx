@@ -1,12 +1,123 @@
-import React from 'react'
-import axios from 'axios';
-import { useState, useEffect, useContext } from 'react';
-import { UserContext } from '../context/UserContext';
+import React, { useState, useEffect, useContext } from 'react'
+import axios from 'axios'
+import { UserContext } from '../context/UserContext'
+import { StatusBadge } from './ManageOrders.jsx' // adjust path to match your project
+import { getImageUrl } from '../../utils/imageUtils'
+import { FiPackage, FiMapPin, FiClock, FiCreditCard, FiChevronDown } from 'react-icons/fi'
+
+
+const STATUS = {
+  pending:      { label: "Pending",     color: "text-amber-400",   bg: "bg-amber-400/10 border-amber-400/30" },
+  accepted:     { label: "Accepted",    color: "text-[#5B8DEF]",   bg: "bg-[#5B8DEF]/10 border-[#5B8DEF]/30" },
+  preparing:    { label: "Preparing",   color: "text-orange-400",  bg: "bg-orange-400/10 border-orange-400/30" },
+  "on the way": { label: "On the Way",  color: "text-violet-400",  bg: "bg-violet-400/10 border-violet-400/30" },
+  delivered:    { label: "Delivered",   color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/30" },
+  cancelled:    { label: "Cancelled",   color: "text-rose-400",    bg: "bg-rose-400/10 border-rose-400/30" },
+};
+const PAYMENT_LABELS = {
+  esewa: "eSewa",
+  khalti: "Khalti",
+  cod: "Cash on Delivery",
+};
+
+const OrderCard = ({ order }) => {
+  const [expanded, setExpanded] = useState(false)
+  const date = new Date(order.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  })
+
+  return (
+    <div className="bg-[#121A2E] border border-[#232F49] rounded-xl overflow-hidden">
+
+      {/* Header row — always visible */}
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className="w-full flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-left hover:bg-[#182238]/60 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-[#0A0E1A] border border-[#232F49] flex items-center justify-center flex-shrink-0">
+            <FiPackage className="w-4 h-4 text-[#5B8DEF]" />
+          </div>
+          <div>
+            <p className="text-sm font-mono text-[#EDF1F7]">#{order._id.slice(-8).toUpperCase()}</p>
+            <p className="text-xs text-[#5C6270] flex items-center gap-1 mt-0.5">
+              <FiClock className="w-3 h-3" /> {date}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <StatusBadge status={order.orderStatus} />
+          <span className="text-sm font-mono font-bold text-[#FFB238]">
+            Rs. {order.totalPrice?.toLocaleString()}
+          </span>
+          <FiChevronDown className={`w-4 h-4 text-[#5C6270] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div className="px-5 pb-5 pt-1 border-t border-[#232F49] space-y-4">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
+            <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <FiMapPin className="w-3.5 h-3.5 text-[#5B8DEF]" />
+                <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Shipping</span>
+              </div>
+              <p className="text-xs text-[#8592AC]">{order.shippingAddress}</p>
+            </div>
+
+            <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <FiCreditCard className="w-3.5 h-3.5 text-[#5B8DEF]" />
+                <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Payment</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#8592AC]">{PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod}</span>
+                <span className={`text-[10px] font-mono font-semibold uppercase tracking-wide ${order.paymentStatus === 'paid' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {order.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-3.5">
+            <p className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest mb-3">
+              Items ({order.items?.length || 0})
+            </p>
+            <div className="space-y-3">
+              {order.items?.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3 pb-3 border-b border-[#232F49] last:border-0 last:pb-0">
+                  <div className="w-9 h-9 rounded-lg overflow-hidden bg-[#121A2E] border border-[#232F49] flex-shrink-0">
+                    <img
+                      src={getImageUrl(item.productId?.image)}
+                      alt={item.productId?.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.src = 'https://placehold.co/36x36/121A2E/8592AC?text=?' }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-[#EDF1F7] truncate">{item.productId?.name || item.name || 'Product'}</p>
+                    <p className="text-xs text-[#5C6270]">Qty {item.quantity}</p>
+                  </div>
+                  <span className="text-sm font-mono font-semibold text-[#FFB238] flex-shrink-0">
+                    Rs. {(item.subtotal ?? item.price)?.toLocaleString?.() ?? item.subtotal ?? item.price}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
-
+  const [filterStatus, setFilterStatus] = useState('all')
   const { user } = useContext(UserContext)
 
   useEffect(() => {
@@ -26,59 +137,84 @@ const OrderHistory = () => {
         setLoading(false)
       }
     }
-
     if (user) fetchOrders()
   }, [user])
 
+  const filtered = filterStatus === 'all' ? orders : orders.filter(o => o.orderStatus === filterStatus)
+
+  const counts = Object.keys(STATUS).reduce((acc, key) => {
+    acc[key] = orders.filter(o => o.orderStatus === key).length
+    return acc
+  }, {})
+
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-12'>
-      <div className='max-w-4xl mx-auto px-6'>
-        <h1 className='text-3xl font-extrabold mb-6'>Order History</h1>
-        <div className='bg-slate-800/60 border border-slate-700 rounded-2xl p-6'>
-        {loading ? (
-          <div className='flex flex-col items-center justify-center py-32 gap-4'>
-            <div className='w-12 h-12 rounded-full border-4 border-slate-700 border-t-indigo-500 animate-spin' />
-            <p className='text-slate-500 text-sm tracking-wide'>Fetching orders...</p>
-          </div>
-        ) : orders.length === 0 ? (
-          <p className='text-slate-500 text-sm tracking-wide'>No orders found.</p>
-        ) : (
-          <ul className='space-y-4'>
-            {orders.map((order) => (
-              <li key={order._id} className='bg-slate-700/50 border border-slate-600 rounded-xl p-4'>
-                <div className='flex items-center justify-between'>
-                  <p className='font-bold'>Order #{order._id}</p>
-                  <div className={` px-2 py-1 rounded-full text-xs font-semibold ${
-                    order.orderStatus==="pending"?"bg-amber-400/30 border-amber-400/30":
-                    order.orderStatus==="accepted"?"bg-emerald-400/30 border-emerald-400/30":
-                    order.orderStatus==="on the way"?"bg-violet-400/30 border-violet-400/30":
-                    order.orderStatus==="delivered"?"bg-emerald-400/30 border-emerald-400/30": "bg-rose-400/30 border-rose-400/30"
-                    }`}>
-                  <p className='text-white text-sm'>Status: {order.orderStatus || order.status}</p>
-                  </div>
-                </div>
-                <div className='mt-2 text-slate-300 text-sm'>
-                  <p>Total: ${order.totalPrice?.toFixed?.(2) ?? order.totalPrice}</p>
-                  <p className='text-slate-400 text-xs'>Placed: {new Date(order.createdAt).toLocaleString()}</p>
-                  <div className='mt-2 border border-slate-800 bg-slate-800/50 rounded-xl p-4'>
-                    {order.items?.map((item, idx) => (
-                      <div key={idx} className='flex  items-center gap-3 text-slate-300 text-sm'>
-                        <span className='font-medium'>{item.productId?.name || item.name || 'Product'}</span>
-                        
-                        <span className='text-slate-500'>x{item.quantity}</span>
-                        <span className='text-green-400'>${item.subtotal?.toFixed?.(2) ?? item.price}</span>
-                       
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </li>
+    <div className="relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7]">
+      <div
+        className="fixed inset-0 opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
+          backgroundSize: '40px 40px'
+        }}
+      />
+
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-12">
+
+        <div className="mb-8">
+          <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1.5">// Account</p>
+          <h1 className="text-2xl md:text-3xl font-display font-semibold text-[#EDF1F7]">Order History</h1>
+          {!loading && (
+            <p className="text-xs font-mono text-[#8592AC] mt-2">
+              {orders.length} order{orders.length !== 1 ? 's' : ''} placed
+            </p>
+          )}
+        </div>
+
+        {!loading && orders.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-mono uppercase tracking-wide border transition-all
+                ${filterStatus === 'all' ? 'bg-[#5B8DEF] border-[#5B8DEF] text-[#0A0E1A]' : 'bg-[#121A2E] border-[#232F49] text-[#8592AC] hover:text-[#EDF1F7]'}`}
+            >
+              All ({orders.length})
+            </button>
+            {Object.entries(STATUS).map(([val, { label, color }]) => (
+              counts[val] > 0 && (
+                <button
+                  key={val}
+                  onClick={() => setFilterStatus(val)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-mono uppercase tracking-wide border transition-all
+                    ${filterStatus === val ? `${color} bg-[#182238] border-[#5C6270]` : 'bg-[#121A2E] border-[#232F49] text-[#8592AC] hover:text-[#EDF1F7]'}`}
+                >
+                  {label} ({counts[val]})
+                </button>
+              )
             ))}
-          </ul>
+          </div>
         )}
-        </div>
-        </div>
-      
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <div className="w-12 h-12 rounded-full border-4 border-[#232F49] border-t-[#5B8DEF] animate-spin" />
+            <p className="text-[#8592AC] text-sm font-mono">Fetching orders...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4 bg-[#121A2E] rounded-xl border border-dashed border-[#232F49]">
+            <div className="w-14 h-14 rounded-xl bg-[#0A0E1A] border border-[#232F49] flex items-center justify-center">
+              <FiPackage className="w-6 h-6 text-[#5C6270]" />
+            </div>
+            <p className="text-[#8592AC] text-sm font-mono">
+              {orders.length === 0 ? 'No orders yet.' : 'No orders match this filter.'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map((order) => (
+              <OrderCard key={order._id} order={order} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,37 +1,84 @@
 import React from 'react'
 
+/* Logo mark — "TH" with an irregular neon-style flicker on its glow */
+const LogoMark = ({ size = "w-7 h-7", textSize = "text-[12px]" }) => (
+  <div className={`${size} rounded-md bg-[#121A2E] border border-[#232F49] flex items-center justify-center flex-shrink-0`}>
+    <span className={`th-flicker font-mono font-bold ${textSize} text-[#5B8DEF] leading-none`}>
+      TH
+    </span>
+  </div>
+)
+
 const Footer = () => {
   return (
-     <footer className="bg-linear-to-r from-[#362F4F] to-[#1A3263] text-slate-400 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-              <div>
-                <h3 className="text-white font-bold text-lg mb-4">TechHub</h3>
-                <p className="text-sm">Your one-stop shop for the latest gadgets and accessories.</p>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold mb-4">Support</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="hover:text-white transition">Contact Us</a></li>
-                  <li><a href="#" className="hover:text-white transition">Shipping Info</a></li>
-                  <li><a href="#" className="hover:text-white transition">Returns</a></li>
-                  <li><a href="#" className="hover:text-white transition">FAQ</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold mb-4">Company</h4>
-                <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="hover:text-white transition">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
-                </ul>
-              </div>
+    <footer className="bg-[#080B14] text-[#8592AC] border-t border-dashed border-[#232F49] pt-14 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+          <div>
+            <div className="flex items-center gap-2.5 mb-4">
+              <LogoMark />
+              <h3 className="text-[#EDF1F7] font-display font-semibold text-lg">TechHub</h3>
             </div>
-            <div className="border-t border-slate-800 pt-8 text-center text-sm">
-              <p>&copy; 2025 TechHub. All rights reserved.</p>
-            </div>
+            <p className="text-sm font-body leading-relaxed">Your one-stop shop for the latest gadgets and mobile accessories.</p>
           </div>
-        </footer>
+
+          <div>
+            <h4 className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-4">// Support</h4>
+            <ul className="space-y-2.5 text-sm font-body">
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">Contact Us</a></li>
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">Shipping Info</a></li>
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">Returns</a></li>
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">FAQ</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-4">// Company</h4>
+            <ul className="space-y-2.5 text-sm font-body">
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">About Us</a></li>
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-[#EDF1F7] transition">Terms of Service</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-4">// Categories</h4>
+            <ul className="space-y-2.5 text-sm font-body">
+              <li><a href="/products/category/mobile-accessories" className="hover:text-[#EDF1F7] transition">Mobile Accessories</a></li>
+              <li><a href="/products/category/gadgets" className="hover:text-[#EDF1F7] transition">Gadgets</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-[#232F49] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+          <p>&copy; 2026 TechHub. All rights reserved.</p>
+          <span className="flex items-center gap-2 text-emerald-400 uppercase tracking-wide">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            System Online
+          </span>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes thFlicker {
+          0%, 19%, 21%, 23%, 46%, 48%, 100% {
+            opacity: 1;
+            text-shadow: 0 0 4px rgba(91,141,239,0.9), 0 0 10px rgba(91,141,239,0.5), 0 0 18px rgba(91,141,239,0.25);
+          }
+          20%, 22% {
+            opacity: 0.35;
+            text-shadow: 0 0 2px rgba(91,141,239,0.3);
+          }
+          47% {
+            opacity: 0.6;
+            text-shadow: 0 0 2px rgba(91,141,239,0.4);
+          }
+        }
+        .th-flicker {
+          animation: thFlicker 7s infinite ease-in-out;
+        }
+      `}</style>
+    </footer>
   )
 }
 

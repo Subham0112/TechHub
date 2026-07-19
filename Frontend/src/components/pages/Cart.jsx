@@ -1,10 +1,20 @@
-import React, { useContext} from 'react'
+import React, { useContext } from 'react'
 import { CartContext } from '../context/CartContext'
+import { getImageUrl } from '../../utils/imageUtils'
 import { FiShoppingCart, FiTrash2, FiMinus, FiPlus, FiArrowLeft } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import CartToast from '../CartToast'
 
-const Cart = ({setProducts}) => {
+const Corners = ({ color = "border-[#5B8DEF]" }) => (
+  <>
+    <span className={`absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 ${color} pointer-events-none`} />
+    <span className={`absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 ${color} pointer-events-none`} />
+    <span className={`absolute -bottom-px -left-px w-4 h-4 border-b-2 border-l-2 ${color} pointer-events-none`} />
+    <span className={`absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 ${color} pointer-events-none`} />
+  </>
+)
+
+const Cart = ({ setProducts }) => {
   const { cartItems, cartLoading, updateQuantity, removeFromCart } = useContext(CartContext)
   const navigate = useNavigate()
 
@@ -14,17 +24,15 @@ const Cart = ({setProducts}) => {
   }, 0)
 
   const handleCheckoutClick = () => {
-    console.log(cartItems)
     setProducts(cartItems)
     navigate('/checkout')
   }
 
-
-  /* ── Loading State (always check this first) ── */
+  /* ── Loading State ── */
   if (cartLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[#232F49] border-t-[#5B8DEF] rounded-full animate-spin" />
       </div>
     )
   }
@@ -32,16 +40,24 @@ const Cart = ({setProducts}) => {
   /* ── Empty State ── */
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center text-white px-4">
-        <div className="text-center">
-          <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700">
-            <FiShoppingCart className="w-10 h-10 text-slate-500" />
+      <div className="relative min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center text-[#EDF1F7] px-4">
+        <div
+          className="fixed inset-0 opacity-[0.05] pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        />
+        <div className="relative text-center">
+          <div className="w-24 h-24 bg-[#121A2E] border border-[#232F49] rounded-full flex items-center justify-center mx-auto mb-6">
+            <FiShoppingCart className="w-10 h-10 text-[#5C6270]" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-          <p className="text-slate-400 mb-8">Start adding some awesome tech products!</p>
+          <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-2">// Cart</p>
+          <h2 className="text-2xl font-display font-semibold text-[#EDF1F7] mb-2">Your cart is empty</h2>
+          <p className="text-[#8592AC] text-sm font-body mb-8">Start adding some awesome tech products!</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full font-semibold transition shadow-lg"
+            className="px-6 py-3 bg-[#5B8DEF] hover:bg-[#4A7CE0] text-[#0A0E1A] rounded-full font-semibold text-sm transition-all active:scale-95"
           >
             Browse Products
           </button>
@@ -50,23 +66,35 @@ const Cart = ({setProducts}) => {
     )
   }
 
-  /* ── Cart with items ── */
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-4 py-10">
-        <div className="max-w-5xl mx-auto">
+      <div className="relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7] px-4 py-10">
+
+        {/* Global blueprint grid */}
+        <div
+          className="fixed inset-0 opacity-[0.05] pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        />
+
+        <div className="relative max-w-5xl mx-auto">
 
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <button
               onClick={() => navigate('/')}
-              className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition border border-slate-700"
+              className="p-2 bg-[#121A2E] hover:bg-[#182238] rounded-lg border border-[#232F49] transition-colors"
             >
-              <FiArrowLeft className="w-5 h-5" />
+              <FiArrowLeft className="w-5 h-5 text-[#8592AC]" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold">Your Cart</h1>
-              <p className="text-slate-400 text-sm">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''}</p>
+              <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-0.5">// Cart</p>
+              <h1 className="text-xl font-display font-semibold text-[#EDF1F7]">Your Cart</h1>
+              <p className="text-[#8592AC] text-xs font-mono mt-0.5">
+                {cartItems.length} item{cartItems.length !== 1 ? 's' : ''}
+              </p>
             </div>
           </div>
 
@@ -79,41 +107,42 @@ const Cart = ({setProducts}) => {
                 return (
                   <div
                     key={item._id}
-                    className="flex gap-4 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4 hover:border-slate-600 transition"
+                    className="group relative flex gap-4 bg-[#121A2E] border border-[#232F49] hover:border-[#5B8DEF]/40 rounded-xl p-4 transition-colors duration-200"
                   >
                     {/* Product Image */}
-                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-slate-900 flex-shrink-0">
+                    <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-[#0A0E1A] flex-shrink-0 border border-[#232F49]">
                       <img
-                        src={product?.image || "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&q=80"}
+                        src={getImageUrl(product?.image) || "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&q=80"}
                         alt={product?.name}
                         className="w-full h-full object-cover"
                       />
+                      <Corners visible="opacity-0 group-hover:opacity-100" />
                     </div>
 
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white text-sm mb-1 truncate">
+                      <h3 className="font-display font-medium text-[#EDF1F7] text-sm mb-1 truncate">
                         {product?.name}
                       </h3>
-                      <p className="text-slate-400 text-xs mb-3 line-clamp-2">
+                      <p className="text-[#8592AC] text-xs mb-3 line-clamp-2 font-body">
                         {product?.description}
                       </p>
 
                       <div className="flex items-center justify-between">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1 border border-slate-700">
+                        <div className="flex items-center gap-2 bg-[#0A0E1A] rounded-lg p-1 border border-[#232F49]">
                           <button
                             onClick={() => updateQuantity(product._id, item.quantity - 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-700 rounded-md transition text-slate-300 hover:text-white"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-[#182238] rounded-md transition-colors text-[#8592AC] hover:text-[#EDF1F7]"
                           >
                             <FiMinus className="w-3 h-3" />
                           </button>
-                          <span className="w-6 text-center text-sm font-semibold">
+                          <span className="w-6 text-center text-sm font-mono font-semibold text-[#EDF1F7]">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(product._id, item.quantity + 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-slate-700 rounded-md transition text-slate-300 hover:text-white"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-[#182238] rounded-md transition-colors text-[#8592AC] hover:text-[#EDF1F7]"
                           >
                             <FiPlus className="w-3 h-3" />
                           </button>
@@ -121,12 +150,12 @@ const Cart = ({setProducts}) => {
 
                         {/* Price + Delete */}
                         <div className="flex items-center gap-3">
-                          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                          <span className="font-mono font-bold text-[#FFB238]">
                             Rs. {(product?.price * item.quantity).toLocaleString()}
                           </span>
                           <button
                             onClick={() => removeFromCart(product._id)}
-                            className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition"
+                            className="p-1.5 text-[#5C6270] hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors"
                           >
                             <FiTrash2 className="w-4 h-4" />
                           </button>
@@ -140,42 +169,44 @@ const Cart = ({setProducts}) => {
 
             {/* ── Order Summary ── */}
             <div className="lg:w-80">
-              <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 sticky top-24">
-                <h2 className="text-lg font-bold mb-5">Order Summary</h2>
+              <div className="relative bg-[#121A2E] border border-[#232F49] rounded-xl p-6 sticky top-24">
+                <Corners />
+                <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1">// Summary</p>
+                <h2 className="text-lg font-display font-semibold text-[#EDF1F7] mb-5">Order Summary</h2>
 
                 <div className="space-y-3 mb-5">
                   {cartItems.map((item) => (
                     <div key={item._id} className="flex justify-between text-sm">
-                      <span className="text-slate-400 truncate max-w-[160px]">
+                      <span className="text-[#8592AC] truncate max-w-[160px] font-body">
                         {item.productId?.name}
-                        <span className="text-slate-500 ml-1">×{item.quantity}</span>
+                        <span className="text-[#5C6270] ml-1">×{item.quantity}</span>
                       </span>
-                      <span className="text-white flex-shrink-0">
+                      <span className="text-[#EDF1F7] flex-shrink-0 font-mono">
                         Rs. {(item.productId?.price * item.quantity).toLocaleString()}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="border-t border-slate-700 pt-4 mb-6">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Total</span>
-                    <span className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                <div className="border-t border-[#232F49] pt-4 mb-6">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-[#EDF1F7] text-sm">Total</span>
+                    <span className="font-mono font-bold text-lg text-[#FFB238]">
                       Rs. {totalPrice.toLocaleString()}
                     </span>
                   </div>
                 </div>
 
-                <button 
-                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold transition shadow-lg shadow-blue-500/20 mb-3"
-                onClick={handleCheckoutClick}
+                <button
+                  onClick={handleCheckoutClick}
+                  className="w-full py-3.5 bg-[#5B8DEF] hover:bg-[#4A7CE0] text-[#0A0E1A] rounded-xl font-semibold text-sm transition-all active:scale-[0.99] mb-3"
                 >
                   Proceed to Checkout
                 </button>
 
                 <button
                   onClick={() => navigate('/')}
-                  className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition text-sm"
+                  className="w-full py-3 bg-[#182238] hover:bg-[#1E2A42] text-[#EDF1F7] rounded-xl font-medium text-sm transition-colors"
                 >
                   Continue Shopping
                 </button>

@@ -17,6 +17,7 @@ import ProductManage from './components/pages/ProductManage.jsx'
 import ManageOrders from './components/pages/ManageOrders.jsx'
 import AdminRoute from './components/Auth/AdminRoute.jsx'
 import { Routes, Route } from 'react-router-dom'
+import TrackOrder from './components/pages/TrackOrder.jsx'
 
 const App = () => {
 
@@ -56,6 +57,17 @@ const handleDismiss = () => setAlert(null);
             <CheckoutPage products={products} />
           </ProtectedRoute>
         } />
+          <Route path="/track-order" element={
+          <ProtectedRoute>
+            <TrackOrder />
+          </ProtectedRoute>
+        } />
+          <Route path="/track-order/:orderId" element={
+          <ProtectedRoute>
+            <TrackOrder />
+          </ProtectedRoute>
+        } />
+
            <Route path="/manage-products" element={
             <AdminRoute>
               <ProductManage handleAlert={handleAlert} />
