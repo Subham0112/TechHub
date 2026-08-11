@@ -1,58 +1,55 @@
-import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import {prisma} from "./src/config/prisma";
 
 dotenv.config();
 
-import User from "./models/users.model";
 
 const adminData = {
-  name: process.env.ADMIN_NAME || "Admin User",
+  name: process.env.ADMIN_NAME || "Admin",
   phone: process.env.ADMIN_PHONE || "9999999999",
   email: process.env.ADMIN_EMAIL || "admin@gmail.com",
   password: process.env.ADMIN_PASSWORD || "admin123",
   address: process.env.ADMIN_ADDRESS || "Admin Address",
-  role: "admin" as const,
+  role: "admin",
 };
-
 const seedAdmin = async (): Promise<void> => {
   try {
-    const mongoUri =
-      process.env.DB_CONNECTION_STRING || "mongodb://127.0.0.1:27017/techhub";
-    process.env.DB_CONNECTION_STRING = mongoUri;
+    const hashedPassword = await bcrypt.hash(adminData.password, 10);
 
-    await mongoose.connect(mongoUri);
-    console.log("Connected to MongoDB");
-
-    const existingUser = await User.findOne({
-      $or: [{ email: adminData.email }, { phone: adminData.phone }],
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: adminData.email }, { phone: adminData.phone }],
+      },
     });
 
     if (existingUser) {
-      const hashedPassword = await bcrypt.hash(adminData.password, 10);
-      existingUser.name = adminData.name;
-      existingUser.phone = adminData.phone;
-      existingUser.email = adminData.email;
-      existingUser.password = hashedPassword;
-      existingUser.address = adminData.address;
-      existingUser.role = "admin";
-
-      await existingUser.save();
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          name: adminData.name,
+          phone: adminData.phone,
+          email: adminData.email,
+          password: hashedPassword,
+          address: adminData.address,
+          role: "admin",
+        },
+      });
       console.log(`Admin updated successfully: ${existingUser.email}`);
     } else {
-      const hashedPassword = await bcrypt.hash(adminData.password, 10);
-      const newAdmin = await User.create({
-        ...adminData,
-        password: hashedPassword,
+      const newAdmin = await prisma.user.create({
+        data: {
+          ...adminData,
+          password: hashedPassword,
+        },
       });
-
       console.log(`Admin created successfully: ${newAdmin.email}`);
     }
   } catch (error) {
     console.error("Failed to seed admin:", error);
     process.exit(1);
   } finally {
-    await mongoose.disconnect();
+    await prisma.$disconnect();
   }
 };
 

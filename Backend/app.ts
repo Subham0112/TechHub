@@ -1,14 +1,13 @@
 import express, { NextFunction, Request, Response } from "express";
-import path from "path";
 import multer from "multer";
-import UserRoutes from "./routes/users.route";
-import ProductRoutes from "./routes/products.route";
-import CartRoutes from "./routes/cart.route";
-import OrderRoutes from "./routes/order.route";
-import AdminRoutes from "./routes/admin.route";
+import UserRoutes from "./src/routes/users.route";
+import ProductRoutes from "./src/routes/products.route";
+import CartRoutes from "./src/routes/cart.route";
+import OrderRoutes from "./src/routes/order.route";
+import AdminRoutes from "./src/routes/admin.route";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import connectDB from "./config/db.config";
+import { uploadDir } from "./src/middlewares/multer";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,12 +19,11 @@ app.use(
   })
 );
 
-connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/uploads", express.static(uploadDir));
 
 app.use("/api/users", UserRoutes);
 app.use("/api/products", ProductRoutes);

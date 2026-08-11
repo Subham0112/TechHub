@@ -1,107 +1,128 @@
 # TechHub Backend
 
-The TechHub Backend is a Node.js + Express API service that supports user authentication, product management, cart operations, and order management.
+Node.js + Express + **Prisma (PostgreSQL)** REST API for the TechHub e-commerce app
+(products, cart, orders, admin analytics). Consumed by the React frontend in `../Frontend`.
 
-## Overview
+## Tech Stack
 
-This backend provides the server-side logic and database access for the TechHub e-commerce app. It exposes REST API endpoints consumed by the React frontend.
+- Node.js + Express 5 + TypeScript (run with `tsx`)
+- Prisma ORM 7 (`prisma-client` generator → `generated/prisma`) with **PostgreSQL** via `@prisma/adapter-pg`
+- JWT (httpOnly cookie auth) + bcrypt password hashing
+- express-validator, multer (product image uploads), slugify, dotenv
 
-## Technology Stack
-
-- Node.js
-- Express
-- MongoDB with Mongoose
-- JSON Web Tokens (JWT)
-- bcrypt for password hashing
-- express-validator for request validation
-- cookie-parser for parsing cookies
-- cors for cross-origin requests
-
-## Architecture
-
-### Entry Point
-- `app.js` — configures Express, connects to MongoDB, enables middleware, and mounts routes.
-
-### Configuration
-- `config/db.config.js` — contains MongoDB connection logic.
-
-### Routes
-- `routes/users.route.js` — user registration, login, profile, and logout
-- `routes/products.route.js` — product listing, create, update, and category filtering
-- `routes/cart.route.js` — cart CRUD operations
-- `routes/order.route.js` — order creation and retrieval
-
-### Controllers
-- `controllers/users.controller.js` — authentication and profile management
-- `controllers/products.controller.js` — product and order business logic
-- `controllers/cart.controller.js` — add/update/remove items from cart
-
-### Models
-- `models/users.model.js` — user schema and fields
-- `models/products.model.js` — product schema
-- `models/cart.model.js` — cart item schema
-- `models/productOrder.model.js` — order schema
-
-### Middleware
-- `middlewares/auth.middleware.js` — protects routes by verifying JWTs from cookies or `Authorization` headers.
-
-## API Endpoints
-
-### Users
-- `POST /api/users/register`
-- `POST /api/users/login`
-- `GET /api/users/profile`
-- `POST /api/users/logout`
-
-### Products
-- `GET /api/products`
-- `POST /api/products`
-- `GET /api/products/:slug-:id`
-- `PUT /api/products/:id`
-- `GET /api/products/category/:category`
-
-### Cart
-- `GET /api/cart`
-- `POST /api/cart/add`
-- `PATCH /api/cart/update`
-- `DELETE /api/cart/remove/:productId`
-
-### Orders
-- `POST /api/orders`
-- `GET /api/orders`
-- `GET /api/orders/:id`
-- `PUT /api/orders/:id`
-
-## Setup
-
-1. Install dependencies:
+## Setup & Run
 
 ```bash
 npm install
+npx prisma generate        # after schema changes (client → generated/prisma, gitignored)
+npx prisma db push         # sync DB schema (dev; no migrations yet)
+npm run seed:admin         # create/update the admin user
+npm run dev                # tsx watch app.ts
+npm run typecheck          # tsc --noEmit
 ```
 
-2. Create a `.env` file with values such as:
+### Environment (`.env`)
 
-```env
-MONGO_URI=<your_mongodb_connection_string>
-JWT_SECRET_KEY=<your_jwt_secret>
-PORT=3000
+| Var | Purpose |
+|-----|---------|
+| `DATABASE_URL` | `postgresql://user:pass@localhost:5432/techhub` |
+| `JWT_SECRET_KEY` | JWT signing secret |
+| `PORT` | default 3000 |
+| `ADMIN_NAME/PHONE/EMAIL/PASSWORD/ADDRESS` | values used by `seed:admin` |
+
+## Architecture
+
+```
+app.ts                      Express app, static /api/uploads, route mounting
+prisma/schema.prisma        Data models (User, Product, Cart/CartItem, Order/OrderItem)
+prisma.config.ts            Prisma CLI config (reads DATABASE_URL)
+seedAdmin.ts                Seeds/updates the admin user (Prisma)
+src/
+  config/prisma.ts          PrismaClient singleton with PrismaPg adapter
+  controllers/              users, products (+orders), cart, admin (stats via raw SQL)
+  middlewares/              auth, adminAuth (JWT), multer (uploads)
+  routes/                   users, products, cart, order, admin
+  types/express.d.ts        AuthUser type on req.user
+  uploads/                  uploaded product images (served at /api/uploads)
 ```
 
-3. Start the server:
+## API Endpoints
 
-```bash
-node app.js
-```
+| Method | Path | Auth | Notes |
+|--------|------|------|-------|
+| POST | `/api/users/register` | – | name, phone, email, password, address |
+| POST | `/api/users/login` | – | sets `token` cookie |
+| POST | `/api/users/admin-login` | – | requires role `admin` |
+| GET/PUT | `/api/users/profile` | user | profile read/update |
+| POST | `/api/users/logout` | user | clears cookie |
+| GET | `/api/products` | – | `?search=` (name/category/type) |
+| POST | `/api/products` | admin | multipart, `image` optional |
+| GET | `/api/products/suggestions` | – | `?q=` → name suggestions |
+| GET | `/api/products/:slug-:id` | – | single product |
+| PUT/DELETE | `/api/products/:id` | admin | delete cascades cart items, nulls order items |
+| GET | `/api/products/category/:category` | – | |
+| GET | `/api/cart` | user | |
+| POST | `/api/cart/add` | user | `{ productId }` (increments qty if present) |
+| PATCH | `/api/cart/update` | user | `{ productId, quantity }` (0 removes) |
+| DELETE | `/api/cart/remove/:productId` | user | |
+| DELETE | `/api/cart/clear` | user | |
+| POST/GET | `/api/orders` | user | create order / list own orders (admin: all) |
+| GET | `/api/orders/:id` | user | |
+| PUT | `/api/orders/:id` | admin | `{ orderStatus?, paymentStatus? }` |
+| GET | `/api/admin/stats` | admin | `?days=7\|30\|90` (default 30) |
+| GET | `/api/admin/users` | admin | customers + orderCount/totalSpent |
 
-Or use nodemon during development:
+Auth: JWT in httpOnly cookie (`token`) or `Authorization: Bearer <token>`.
 
-```bash
-npx nodemon app.js
-```
+## Database Schema Notes
 
-## Notes
+- `User.role` is a String with default `"user"` (values `user`/`admin`)
+- `OrderItem.productId` is nullable (`onDelete: SetNull`) — deleting a product keeps order
+  history (stats show "Deleted product")
+- `CartItem` cascades when a product or cart is deleted; `Cart.userId` is unique (1 cart/user)
+- Order/payment statuses are plain strings: `pending|accepted|preparing|on the way|delivered|cancelled`,
+  `esewa|khalti|cod`, `paid|unpaid`
 
-- CORS is enabled with credentials, so the frontend can send authenticated requests.
-- Authentication is enforced on cart, order, and profile endpoints.
-- The backend is the primary data source for product listing, cart state, and order processing.
+## API Compatibility Contract (important)
+
+The frontend expects the old Mongoose shapes. Controllers keep this by:
+- returning `_id` (stringified numeric `id`) alongside `id`
+- populating `userId` and `order/cart item.productId` as objects
+- order `_id` is a string (frontend does `_id.slice(-8)` for display)
+
+## Uploads
+
+Multer writes to `src/uploads/` (shared `uploadDir` export in `src/middlewares/multer.ts`).
+`app.ts` serves them at `/api/uploads` from the same dir. DB stores `/uploads/<file>`; the
+frontend prefixes the API base.
+
+## Admin Analytics
+
+- `GET /api/admin/stats?days=N` returns `salesByDay` (N daily points, non-cancelled orders)
+  and `previousPeriodRevenue` (same window before, for trend comparison)
+- Frontend `components/admin/RevenueChart.tsx` renders a dependency-free SVG area/line
+  chart with hover tooltips; `AdminDashboard.tsx` has 7D/30D/90D toggle + trend badge
+
+---
+
+## Work History (this project's migration)
+
+1. **MongoDB → PostgreSQL + Prisma** (full rewrite of `src/`):
+   - `prisma/schema.prisma`: all models converted to relational schema
+   - All controllers/middlewares rewritten from Mongoose to Prisma Client
+   - Admin stats/customers use raw SQL (`$queryRaw`) — per-day sales, top products, customers
+   - Deleted Mongoose models, `db.config.ts`, and the `mongoose` dependency;
+     removed `DB_CONNECTION_STRING` from `.env`
+   - Prisma 7 requires the driver adapter: `new PrismaClient({ adapter: new PrismaPg(...) })`
+     (see `src/config/prisma.ts`) — `new PrismaClient()` without an adapter will not work
+2. **Image upload fix**: files were written to `src/uploads` but served from the non-existent
+   root `uploads/` — now both use the same `uploadDir`
+3. **Revenue analytics graph**: backend `days` window + previous-period revenue;
+   frontend SVG `RevenueChart` with range toggle and trend badge
+4. **Data safety rules**: see `AGENTS.md` — never delete user data; test-data cleanup must be
+   scoped to the exact rows the current session created (verify with a `findMany`/`count` first)
+
+## Known Gaps
+
+- No Prisma migrations yet — schema is synced with `prisma db push`
+- No automated tests; smoke-tested manually (register/login/products/cart/orders/stats)
