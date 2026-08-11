@@ -1,8 +1,8 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
-const uploadDir = path.join(__dirname, '..', 'uploads');
+const uploadDir = path.join(__dirname, "..", "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -12,13 +12,13 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
     cb(null, `product-${uniqueSuffix}${ext}`);
-  }
+  },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp|gif/;
   const extValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimeValid = allowedTypes.test(file.mimetype);
@@ -26,14 +26,14 @@ const fileFilter = (req, file, cb) => {
   if (extValid && mimeValid) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files (jpeg, jpg, png, webp, gif) are allowed'));
+    cb(new Error("Only image files (jpeg, jpg, png, webp, gif) are allowed"));
   }
 };
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
-module.exports = upload;
+export default upload;
