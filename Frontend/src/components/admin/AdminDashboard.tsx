@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { getImageUrl } from '../../utils/imageUtils'
 import { getErrorMessage } from '../../utils/errorUtils'
 import { StatusBadge } from '../pages/ManageOrders'
+import RevenueChart from './RevenueChart'
 import type { AdminStats, Order, OrderStatus, Product } from '../../types'
 import {
   FiTrendingUp, FiShoppingBag, FiPackage, FiUsers, FiFileText,
@@ -30,36 +31,6 @@ const StatCard: React.FC<{
     {sub && <p className="text-xs text-[#5C6270] font-mono mt-1">{sub}</p>}
   </div>
 )
-
-const RevenueBarChart: React.FC<{ data: AdminStats["salesByDay"] }> = ({ data }) => {
-  const max = Math.max(...data.map((d) => d.revenue), 1)
-  return (
-    <div className="bg-[#121A2E] border border-[#232F49] rounded-xl p-5">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1">// Revenue</p>
-          <h3 className="text-base font-display font-semibold text-[#EDF1F7]">Last 7 Days</h3>
-        </div>
-        <FiTrendingUp className="w-5 h-5 text-[#5B8DEF]" />
-      </div>
-      <div className="flex items-end justify-between gap-2 h-40">
-        {data.map((d, i) => (
-          <div key={i} className="flex flex-col items-center gap-2 flex-1 min-w-0">
-            <span className="text-[9px] font-mono text-[#FFB238] font-semibold">
-              {d.revenue > 0 ? `Rs.${(d.revenue / 1000).toFixed(1)}k` : ''}
-            </span>
-            <div
-              className="w-full max-w-[42px] rounded-t-md bg-gradient-to-t from-[#5B8DEF]/60 to-[#5B8DEF] transition-all duration-500"
-              style={{ height: `${Math.max((d.revenue / max) * 100, 3)}%` }}
-              title={`Rs. ${d.revenue.toLocaleString()}`}
-            />
-            <span className="text-[9px] font-mono text-[#5C6270] uppercase">{d.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 const StatusBreakdown: React.FC<{
   counts: Partial<Record<OrderStatus, number>>;
@@ -113,15 +84,26 @@ const StatusBreakdown: React.FC<{
   )
 }
 
+const RANGES = [
+  { value: '7', label: '7D' },
+  { value: '30', label: '30D' },
+  { value: '90', label: '90D' },
+] as const
+
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [range, setRange] = useState<string>('30')
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true)
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin/stats`, { withCredentials: true })
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/admin/stats?days=${range}`,
+          { withCredentials: true }
+        )
         setStats(res.data)
       } catch (err) {
         console.error(err)
@@ -131,7 +113,7 @@ const AdminDashboard: React.FC = () => {
       }
     }
     fetchStats()
-  }, [])
+  }, [range])
 
   if (loading) {
     return (
@@ -158,6 +140,12 @@ const AdminDashboard: React.FC = () => {
     )
   }
 
+  const periodRevenue = stats.salesByDay.reduce((sum, d) => sum + d.revenue, 0)
+  const prevRevenue = stats.previousPeriodRevenue || 0
+  const deltaPct =
+    prevRevenue > 0 ? ((periodRevenue - prevRevenue) / prevRevenue) * 100 : null
+  const deltaLabel = stats.salesByDay.length
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="mb-8">
@@ -180,8 +168,50 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4 mb-8">
-        <div className="lg:col-span-2">
-          <RevenueBarChart data={stats.salesByDay} />
+        <div className="lg:col-span-2 bg-[#121A2E] border border-[#232F49] rounded-xl p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1">// Revenue Analytics</p>
+              <div className="flex items-center gap-3">
+                <h3 className="text-base font-display font-semibold text-[#EDF1F7]">
+                  Rs. {periodRevenue.toLocaleString()}
+                </h3>
+                {deltaPct !== null && (
+                  <span
+                    className={`inline-flex items-center gap-1 text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full border ${
+                      deltaPct >= 0
+                        ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30'
+                        : 'text-rose-400 bg-rose-400/10 border-rose-400/30'
+                    }`}
+                  >
+                    {deltaPct >= 0
+                      ? <FiArrowUpRight className="w-3 h-3" />
+                      : <FiArrowDownRight className="w-3 h-3" />}
+                    {Math.abs(deltaPct).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-[#5C6270] font-mono mt-0.5">
+                Last {deltaLabel} days{deltaPct !== null ? ` · vs previous ${deltaLabel} days` : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 bg-[#0A0E1A] border border-[#232F49] rounded-lg p-1">
+              {RANGES.map((r) => (
+                <button
+                  key={r.value}
+                  onClick={() => setRange(r.value)}
+                  className={`px-3 py-1.5 text-[11px] font-mono font-semibold rounded-md transition-colors ${
+                    range === r.value
+                      ? 'bg-[#5B8DEF] text-[#0A0E1A]'
+                      : 'text-[#5C6270] hover:text-[#EDF1F7]'
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <RevenueChart data={stats.salesByDay} />
         </div>
         <StatusBreakdown counts={stats.statusCounts} total={stats.totalOrders} />
       </div>

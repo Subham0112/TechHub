@@ -86,6 +86,7 @@ export interface AdminStats {
   averageOrderValue: number;
   statusCounts: Partial<Record<OrderStatus, number>>;
   salesByDay: { date: string; label: string; revenue: number; orders: number }[];
+  previousPeriodRevenue: number;
   recentOrders: Order[];
   topProducts: { _id: string; name: string; image: string; unitsSold: number; revenue: number }[];
   lowStockProducts: Product[];
