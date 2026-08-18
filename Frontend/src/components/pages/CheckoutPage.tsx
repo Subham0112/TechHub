@@ -7,7 +7,7 @@ import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag, FiSmart
 import type { IconType } from 'react-icons'
 import type { Product } from '../../types'
 
-const Step: React.FC<{ number: number; label: string; active: boolean; done: boolean }> = ({ number, label, active, done }) => (
+const Step = ({ number, label, active, done }: { number: number; label: string; active: boolean; done: boolean }) => (
   <div className='flex items-center gap-2'>
     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all
       ${done ? 'bg-emerald-500 text-white' : active ? 'bg-indigo-600 text-white ring-4 ring-indigo-600/25' : 'bg-slate-700 text-slate-400'}`}>
@@ -19,9 +19,9 @@ const Step: React.FC<{ number: number; label: string; active: boolean; done: boo
   </div>
 )
 
-const Divider: React.FC = () => <div className='flex-1 h-px bg-slate-700 mx-2 hidden sm:block' />
+const Divider = () => <div className='flex-1 h-px bg-slate-700 mx-2 hidden sm:block' />
 
-const Field: React.FC<{ label: string; error?: string; children: React.ReactNode }> = ({ label, error, children }) => (
+const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
   <div>
     <label className='block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5'>
       {label}
@@ -52,7 +52,7 @@ const PAYMENT_OPTIONS: PaymentOption[] = [
   { id: 'cod', label: 'Cash on Delivery', desc: 'Pay when your order arrives', icon: FiTruck, accent: 'group-hover:border-amber-500/50 peer-checked:border-amber-500 peer-checked:bg-amber-500/10', iconColor: 'text-amber-400' },
 ]
 
-const PaymentMethodSelector: React.FC<{ value: string; onChange: (val: string) => void; error?: string }> = ({ value, onChange, error }) => (
+const PaymentMethodSelector = ({ value, onChange, error }: { value: string; onChange: (val: string) => void; error?: string }) => (
   <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-5'>
     <div className='flex items-center gap-2 mb-4'>
       <FiCreditCard className='w-4 h-4 text-indigo-400' />
@@ -85,7 +85,7 @@ const PaymentMethodSelector: React.FC<{ value: string; onChange: (val: string) =
   </div>
 )
 
-const SuccessScreen: React.FC<{ onContinue: () => void }> = ({ onContinue }) => (
+const SuccessScreen = ({ onContinue }: { onContinue: () => void }) => (
   <div className='min-h-screen bg-[#0a0f1e] flex items-center justify-center px-4'>
     <div className='text-center max-w-md'>
       <div className='relative mx-auto w-24 h-24 mb-6'>
@@ -129,7 +129,7 @@ interface CheckoutItem {
 }
 
 // ── Main Checkout ───────────────────────────────────────────────
-const CheckoutPage: React.FC<{ products: Product[] }> = ({ products: _products }) => {
+const CheckoutPage = ({ products: _products }: { products: Product[] }) => {
   const navigate = useNavigate()
   const [step, setStep] = useState(1) // 1 = address, 2 = review + payment, 3 = success
   const [placing, setPlacing] = useState(false)

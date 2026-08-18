@@ -19,7 +19,7 @@ interface EditProductModalProps {
   product: Product | null;
 }
 
-const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, onSubmit, product }) => {
+const EditProductModal = ({ isOpen, onClose, onSubmit, product }: EditProductModalProps) => {
   const [formData, setFormData] = useState(initialFormState);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");

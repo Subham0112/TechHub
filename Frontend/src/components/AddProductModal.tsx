@@ -16,7 +16,7 @@ interface AddProductModalProps {
   onSubmit: (formData: FormData) => Promise<void>;
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const AddProductModal = ({ isOpen, onClose, onSubmit }: AddProductModalProps) => {
   const [formData, setFormData] = useState<FormDataState>({
     name: "",
     price: "",

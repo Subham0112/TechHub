@@ -21,7 +21,7 @@ interface CartContextValue {
 
 export const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: userLoading } = useContext(UserContext);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartLoading, setCartLoading] = useState(true);

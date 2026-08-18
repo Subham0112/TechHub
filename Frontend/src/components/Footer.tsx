@@ -1,10 +1,10 @@
 import React from "react";
 
 /* Logo mark — "TH" with an irregular neon-style flicker on its glow */
-const LogoMark: React.FC<{ size?: string; textSize?: string }> = ({
+const LogoMark = ({
   size = "w-7 h-7",
   textSize = "text-[12px]",
-}) => (
+}: { size?: string; textSize?: string }) => (
   <div
     className={`${size} rounded-md bg-[#121A2E] border border-[#232F49] flex items-center justify-center flex-shrink-0`}
   >
@@ -14,7 +14,7 @@ const LogoMark: React.FC<{ size?: string; textSize?: string }> = ({
   </div>
 );
 
-const Footer: React.FC = () => {
+const Footer = () => {
   return (
     <footer className="bg-[#080B14] text-[#8592AC] border-t border-dashed border-[#232F49] pt-14 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

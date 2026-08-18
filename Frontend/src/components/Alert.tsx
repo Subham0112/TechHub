@@ -6,7 +6,7 @@ interface AlertProps {
   onDismiss: () => void;
 }
 
-const Alert: React.FC<AlertProps> = ({ alert, onDismiss }) => {
+const Alert = ({ alert, onDismiss }: AlertProps) => {
   const styles: Record<string, { bg: string; border: string; text: string; icon: string }> = {
     info: { bg: "bg-blue-50", border: "border-blue-400", text: "text-blue-800", icon: "●" },
     success: { bg: "bg-green-50", border: "border-green-400", text: "text-green-800", icon: "✓" },

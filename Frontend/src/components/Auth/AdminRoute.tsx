@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 
-const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useContext(UserContext); // ← use context, no API call
   const navigate = useNavigate();
 

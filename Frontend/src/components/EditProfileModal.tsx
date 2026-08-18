@@ -11,21 +11,21 @@ interface FieldProps {
   children: React.ReactNode;
 }
 
-const Field: React.FC<FieldProps> = ({ label, icon: Icon, error, children }) => (
+const Field = ({ label, icon: Icon, error, children }: FieldProps) => (
   <div>
-    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+    <label className="flex items-center gap-1.5 text-xs font-mono font-semibold text-[#8592AC] uppercase tracking-wider mb-1.5">
       <Icon className="w-3.5 h-3.5" />
       {label}
     </label>
     {children}
-    {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+    {error && <p className="text-rose-400 text-xs mt-1">{error}</p>}
   </div>
 );
 
 const inputCls = (err?: string) =>
-  `w-full bg-slate-800 border ${err ? "border-red-500 focus:ring-red-500" : "border-slate-700 focus:ring-indigo-500"}
-   text-white text-sm rounded-xl px-4 py-2.5 placeholder-slate-600
-   focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200`;
+  `w-full bg-[#0A0E1A] border ${err ? "border-rose-500/70" : "border-[#232F49] focus:border-[#5B8DEF]"}
+   text-[#EDF1F7] text-sm rounded-lg px-4 py-2.5 placeholder-[#5C6270]
+   focus:outline-none transition-all duration-200 font-body`;
 
 interface EditProfileModalProps {
   user: User | null;
@@ -35,13 +35,13 @@ interface EditProfileModalProps {
   onSubmit: (formData: { name: string; email: string; phone: string; address: string }) => void;
 }
 
-const EditProfileModal: React.FC<EditProfileModalProps> = ({
+const EditProfileModal = ({
   user,
   loading,
   setLoading,
   onClose,
   onSubmit,
-}) => {
+}: EditProfileModalProps) => {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -111,15 +111,15 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-[#121A2E] border border-[#232F49] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-slate-800 border-b border-slate-700 px-6 py-4 rounded-t-2xl flex items-center justify-between">
-          <h2 className="text-base font-bold text-white">Edit Profile</h2>
+        <div className="sticky top-0 z-10 bg-[#121A2E] border-b border-[#232F49] px-6 py-4 rounded-t-2xl flex items-center justify-between">
+          <h2 className="text-base font-display font-semibold text-[#EDF1F7]">Edit Profile</h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white hover:bg-slate-700 p-2 rounded-lg transition-all"
+            className="text-[#8592AC] hover:text-[#EDF1F7] hover:bg-[#182238] p-2 rounded-lg transition-all cursor-pointer"
           >
             <FiX className="w-5 h-5" />
           </button>
@@ -127,7 +127,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           {serverError && (
-            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm rounded-xl px-4 py-3">
+            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm rounded-lg px-4 py-3">
               {serverError}
             </div>
           )}
@@ -180,22 +180,22 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             />
           </Field>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-700">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#232F49]">
             <button
               onClick={onClose}
               type="button"
               disabled={loading}
-              className="px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 disabled:opacity-50 rounded-xl transition-all duration-200"
+              className="px-5 py-2.5 text-sm font-medium text-[#8592AC] hover:text-[#EDF1F7] bg-[#182238] hover:bg-[#1E2A42] disabled:opacity-50 rounded-lg transition-all duration-200 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed rounded-xl transition-all duration-200 flex items-center gap-2"
+              className="px-6 py-2.5 text-sm font-semibold text-[#0A0E1A] bg-[#5B8DEF] hover:bg-[#4A7CE0] disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
               {loading && (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#0A0E1A]/30 border-t-[#0A0E1A] rounded-full animate-spin" />
               )}
               {loading ? "Saving..." : "Save Changes"}
             </button>

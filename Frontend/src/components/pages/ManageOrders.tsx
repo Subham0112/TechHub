@@ -29,7 +29,7 @@ const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   cod: "Cash on Delivery",
 };
 
-export const StatusBadge: React.FC<{ status: OrderStatus }> = ({ status }) => {
+export const StatusBadge = ({ status }: { status: OrderStatus }) => {
   const s = STATUS[status] || STATUS.pending;
   return (
     <span className={`inline-flex items-center text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full border uppercase tracking-wide ${s.color} ${s.bg} whitespace-nowrap`}>
@@ -38,11 +38,11 @@ export const StatusBadge: React.FC<{ status: OrderStatus }> = ({ status }) => {
   );
 };
 
-const OrderStatusControl: React.FC<{
+const OrderStatusControl = ({ orderId, status, onStatusUpdate }: {
   orderId: string;
   status: OrderStatus;
   onStatusUpdate: (orderId: string, newStatus: OrderStatus) => void;
-}> = ({ orderId, status, onStatusUpdate }) => {
+}) => {
   const [saving, setSaving] = useState(false);
   const action = NEXT_ACTION[status];
   const canCancel = CANCELLABLE_FROM.includes(status);
@@ -92,11 +92,11 @@ const OrderStatusControl: React.FC<{
   );
 };
 
-export const PaymentStatusToggle: React.FC<{
+export const PaymentStatusToggle = ({ orderId, paymentStatus, onPaymentUpdate }: {
   orderId: string;
   paymentStatus: PaymentStatus;
   onPaymentUpdate: (orderId: string, newStatus: PaymentStatus) => void;
-}> = ({ orderId, paymentStatus, onPaymentUpdate }) => {
+}) => {
   const [saving, setSaving] = useState(false);
   const isPaid = paymentStatus === "paid";
 
@@ -134,11 +134,11 @@ export const PaymentStatusToggle: React.FC<{
 const productName = (item: OrderItem): string =>
   typeof item.productId === "string" ? "Product" : item.productId?.name || "Product";
 
-const OrderModal: React.FC<{
+const OrderModal = ({ order, onClose, onPaymentUpdate }: {
   order: Order;
   onClose: () => void;
   onPaymentUpdate: (orderId: string, newStatus: PaymentStatus) => void;
-}> = ({ order, onClose, onPaymentUpdate }) => {
+}) => {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = "unset"; };
@@ -248,7 +248,7 @@ const OrderModal: React.FC<{
   );
 };
 
-const ManageOrders: React.FC = () => {
+const ManageOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);

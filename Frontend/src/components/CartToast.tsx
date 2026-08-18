@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { CartContext } from "./context/CartContext";
 import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
-const CartToast: React.FC = () => {
+const CartToast = () => {
   const context = useContext(CartContext);
   const toast = context?.toast ?? null;
 

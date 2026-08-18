@@ -7,7 +7,7 @@ import { UserContext } from '../context/UserContext'
 import { getErrorMessage } from '../../utils/errorUtils'
 import type { AlertData } from '../../types'
 
-const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) => (
+const Corners = ({ color = "border-[#5B8DEF]" }: { color?: string }) => (
   <>
     <span className={`absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 ${color} pointer-events-none`} />
     <span className={`absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 ${color} pointer-events-none`} />
@@ -16,7 +16,7 @@ const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) =
   </>
 )
 
-const InfoRow: React.FC<{ icon: IconType; title: string; desc: string }> = ({ icon: Icon, title, desc }) => (
+const InfoRow = ({ icon: Icon, title, desc }: { icon: IconType; title: string; desc: string }) => (
   <div className="flex items-start gap-4 bg-[#121A2E] border border-[#232F49] p-4 rounded-xl">
     <div className="p-2.5 bg-[#5B8DEF]/10 border border-[#5B8DEF]/20 rounded-lg flex-shrink-0">
       <Icon className="w-5 h-5 text-[#5B8DEF]" />
@@ -30,7 +30,7 @@ const InfoRow: React.FC<{ icon: IconType; title: string; desc: string }> = ({ ic
 
 const inputCls = "w-full pl-12 pr-4 py-3 bg-[#0A0E1A] border border-[#232F49] rounded-lg text-[#EDF1F7] placeholder-[#5C6270] focus:outline-none focus:border-[#5B8DEF] focus:ring-2 focus:ring-[#5B8DEF]/20 transition font-body text-sm"
 
-const AdminLogin: React.FC<{ handleAlert: (alert: AlertData) => void }> = ({ handleAlert }) => {
+const AdminLogin = ({ handleAlert }: { handleAlert: (alert: AlertData) => void }) => {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({

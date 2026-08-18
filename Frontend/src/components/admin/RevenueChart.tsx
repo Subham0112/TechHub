@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react'
+import { FiBarChart2 } from 'react-icons/fi'
 
 export interface RevenuePoint {
   date: string;
@@ -34,7 +35,7 @@ const PAD = { top: 18, right: 14, bottom: 30, left: 52 }
 const INNER_W = W - PAD.left - PAD.right
 const INNER_H = H - PAD.top - PAD.bottom
 
-const RevenueChart: React.FC<{ data: RevenuePoint[] }> = ({ data }) => {
+const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const [hover, setHover] = useState<number | null>(null)
 
@@ -72,6 +73,19 @@ const RevenueChart: React.FC<{ data: RevenuePoint[] }> = ({ data }) => {
   }
 
   const hovered = hover !== null ? data[hover] : null
+  const hasData = data.some((d) => d.revenue > 0)
+
+  if (!hasData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-14 gap-3">
+        <FiBarChart2 className="w-8 h-8 text-[#2A3752]" />
+        <p className="text-sm text-[#8592AC] font-mono">No sales data for this period</p>
+        <p className="text-xs text-[#5C6270] font-mono">
+          Revenue will appear here once customers place orders
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="relative">
@@ -133,6 +147,20 @@ const RevenueChart: React.FC<{ data: RevenuePoint[] }> = ({ data }) => {
             >
               {fmtMonthDay(d.date)}
             </text>
+          ) : null
+        )}
+
+        {data.map((d, i) =>
+          d.revenue > 0 ? (
+            <circle
+              key={`dot-${i}`}
+              cx={x(i)}
+              cy={y(d.revenue)}
+              r="3"
+              fill="#5B8DEF"
+              stroke="#121A2E"
+              strokeWidth="1.5"
+            />
           ) : null
         )}
 

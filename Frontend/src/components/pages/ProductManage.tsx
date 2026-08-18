@@ -6,7 +6,7 @@ import { getImageUrl } from '../../utils/imageUtils'
 import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiPackage } from 'react-icons/fi'
 import type { AlertData, Product } from '../../types'
 
-const StatCard: React.FC<{ label: string; value: number; accent: string }> = ({ label, value, accent }) => (
+const StatCard = ({ label, value, accent }: { label: string; value: number; accent: string }) => (
   <div className='relative overflow-hidden bg-[#121A2E] border border-[#232F49] rounded-xl px-5 py-4'>
     <div className={`absolute top-0 left-0 w-1 h-full ${accent}`} />
     <p className='text-[10px] font-mono text-[#8592AC] uppercase tracking-widest mb-1'>{label}</p>
@@ -14,7 +14,7 @@ const StatCard: React.FC<{ label: string; value: number; accent: string }> = ({ 
   </div>
 )
 
-const ManageProducts: React.FC<{ handleAlert: (alert: AlertData) => void }> = ({ handleAlert }) => {
+const ManageProducts = ({ handleAlert }: { handleAlert: (alert: AlertData) => void }) => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)

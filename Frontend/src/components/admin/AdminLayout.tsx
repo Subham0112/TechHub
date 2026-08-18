@@ -7,7 +7,7 @@ import {
 import type { IconType } from 'react-icons'
 import { UserContext } from '../context/UserContext'
 
-const LogoMark: React.FC = () => (
+const LogoMark = () => (
   <div className="w-9 h-9 rounded-md bg-[#121A2E] border border-[#232F49] flex items-center justify-center flex-shrink-0">
     <span className="th-flicker font-mono font-bold text-[14px] text-[#5B8DEF] leading-none">
       TH
@@ -29,7 +29,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/admin/customers', label: 'Customers', icon: FiUsers },
 ]
 
-const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => {
+const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
   const navigate = useNavigate()
   const { user, logout } = useContext(UserContext)
 
@@ -106,7 +106,7 @@ const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) =
   )
 }
 
-const AdminLayout: React.FC = () => {
+const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user } = useContext(UserContext)
 

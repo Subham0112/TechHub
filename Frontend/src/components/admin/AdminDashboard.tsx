@@ -12,13 +12,13 @@ import {
 } from 'react-icons/fi'
 import type { IconType } from 'react-icons'
 
-const StatCard: React.FC<{
+const StatCard = ({ label, value, icon: Icon, accent, sub }: {
   label: string;
   value: string | number;
   icon: IconType;
   accent: string;
   sub?: string;
-}> = ({ label, value, icon: Icon, accent, sub }) => (
+}) => (
   <div className="relative overflow-hidden bg-[#121A2E] border border-[#232F49] rounded-xl px-5 py-4">
     <div className={`absolute top-0 left-0 w-1 h-full ${accent}`} />
     <div className="flex items-center justify-between mb-1">
@@ -32,10 +32,10 @@ const StatCard: React.FC<{
   </div>
 )
 
-const StatusBreakdown: React.FC<{
+const StatusBreakdown = ({ counts, total }: {
   counts: Partial<Record<OrderStatus, number>>;
   total: number;
-}> = ({ counts, total }) => {
+}) => {
   const STATUS_COLORS: Record<string, string> = {
     pending: 'bg-amber-400',
     accepted: 'bg-[#5B8DEF]',
@@ -90,7 +90,7 @@ const RANGES = [
   { value: '90', label: '90D' },
 ] as const
 
-const AdminDashboard: React.FC = () => {
+const AdminDashboard = () => {
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

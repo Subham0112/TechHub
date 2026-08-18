@@ -27,7 +27,7 @@ const productName = (item: OrderItem): string =>
 const productImage = (item: OrderItem): string | undefined =>
   typeof item.productId === "string" ? undefined : item.productId?.image;
 
-const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
+const OrderCard = ({ order }: { order: Order }) => {
   const [expanded, setExpanded] = useState(false)
   const date = new Date(order.createdAt).toLocaleDateString('en-US', {
     year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -121,7 +121,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
   )
 }
 
-const OrderHistory: React.FC = () => {
+const OrderHistory = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all')

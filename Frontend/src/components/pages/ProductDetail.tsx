@@ -5,22 +5,14 @@ import { CartContext } from '../context/CartContext'
 import { UserContext } from '../context/UserContext'
 import { getImageUrl } from '../../utils/imageUtils'
 import CartToast from '../CartToast'
-import { FiArrowLeft, FiShoppingCart, FiMinus, FiPlus, FiPackage } from 'react-icons/fi'
+import { FiArrowLeft, FiShoppingCart, FiMinus, FiPlus, FiPackage, FiShield, FiTruck, FiRefreshCw } from 'react-icons/fi'
 import type { Product } from '../../types'
 
-const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) => (
-  <>
-    <span className={`absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 ${color} pointer-events-none`} />
-    <span className={`absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 ${color} pointer-events-none`} />
-    <span className={`absolute -bottom-px -left-px w-4 h-4 border-b-2 border-l-2 ${color} pointer-events-none`} />
-    <span className={`absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 ${color} pointer-events-none`} />
-  </>
-)
-
-const ProductDetailPage: React.FC = () => {
+const ProductDetailPage = () => {
   const { slugId } = useParams<{ slugId: string }>()   // combined "slug-id" segment, e.g. "iphone-15-case-64f1a2b3c4d5e6f7g8h9i0j1"
   const navigate = useNavigate()
   const [product, setProduct] = useState<Product | null>(null)
+  const [related, setRelated] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [quantity, setQuantity] = useState(1)
@@ -40,6 +32,17 @@ const ProductDetailPage: React.FC = () => {
         const res = await axios.get<Product>(`${import.meta.env.VITE_API_URL}/products/${slugId}`)
         setProduct(res.data)
         setQuantity(1)
+
+        // Related products: same category, excluding the current product
+        try {
+          const all = await axios.get<Product[]>(`${import.meta.env.VITE_API_URL}/products/`)
+          const sameCategory = all.data
+            .filter(p => p.category === res.data.category && p._id !== res.data._id)
+            .slice(0, 4)
+          setRelated(sameCategory)
+        } catch {
+          setRelated([])
+        }
       } catch (err) {
         console.error('Product fetch error:', err)
         setNotFound(true)
@@ -75,7 +78,7 @@ const ProductDetailPage: React.FC = () => {
         <p className="text-[#8592AC] text-sm font-body mb-8">This product may have been removed or doesn't exist.</p>
         <button
           onClick={() => navigate('/products')}
-          className="px-6 py-3 bg-[#5B8DEF] hover:bg-[#4A7CE0] text-[#0A0E1A] rounded-lg font-semibold text-sm transition-all"
+          className="px-6 py-3 bg-[#5B8DEF] hover:bg-[#4A7CE0] text-[#0A0E1A] rounded-lg font-semibold text-sm transition-all cursor-pointer"
         >
           Browse Products
         </button>
@@ -87,29 +90,19 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <>
-      <div className="relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7]">
-
-        <div
-          className="fixed inset-0 opacity-[0.05] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
-
-        <div className="relative max-w-6xl mx-auto px-4 py-10">
+      <div className="min-h-screen bg-[#0A0E1A] text-[#EDF1F7]">
+        <div className="max-w-6xl mx-auto px-4 py-10">
 
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-[#8592AC] hover:text-[#EDF1F7] uppercase tracking-wide transition-colors mb-8"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-[#8592AC] hover:text-[#EDF1F7] uppercase tracking-wide transition-colors mb-8 cursor-pointer"
           >
             <FiArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
 
             <div className="relative bg-[#121A2E] border border-[#232F49] rounded-2xl overflow-hidden aspect-square">
-              <Corners />
               <img
                 src={getImageUrl(product.image) || 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=800&q=80'}
                 alt={product.name}
@@ -118,7 +111,7 @@ const ProductDetailPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col">
-              <span className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-2">
+              <span className="text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-2">
                 {product.type || product.category}
               </span>
               <h1 className="text-2xl md:text-3xl font-display font-semibold text-[#EDF1F7] mb-3">
@@ -126,7 +119,7 @@ const ProductDetailPage: React.FC = () => {
               </h1>
 
               {typeof product.stock === 'number' && (
-                <span className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded text-[10px] font-mono uppercase tracking-wide mb-4 ${inStock ? 'bg-emerald-400/10 text-emerald-400' : 'bg-rose-400/10 text-rose-400'}`}>
+                <span className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wide mb-5 ${inStock ? 'bg-emerald-400/10 text-emerald-400' : 'bg-rose-400/10 text-rose-400'}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-400' : 'bg-rose-400'}`} />
                   {inStock ? `${product.stock} in stock` : 'Sold out'}
                 </span>
@@ -137,7 +130,7 @@ const ProductDetailPage: React.FC = () => {
               </p>
 
               <div className="text-3xl font-mono font-bold text-[#FFB238] mb-8">
-                Rs. {product.price}
+                Rs. {product.price.toLocaleString()}
               </div>
 
               {!isAdmin && (
@@ -148,6 +141,7 @@ const ProductDetailPage: React.FC = () => {
                       <button
                         onClick={() => setQuantity(q => Math.max(1, q - 1))}
                         disabled={!inStock}
+                        aria-label="Decrease quantity"
                         className="w-8 h-8 flex items-center justify-center hover:bg-[#182238] rounded-md transition-colors text-[#8592AC] hover:text-[#EDF1F7] disabled:opacity-40"
                       >
                         <FiMinus className="w-3.5 h-3.5" />
@@ -156,6 +150,7 @@ const ProductDetailPage: React.FC = () => {
                       <button
                         onClick={() => setQuantity(q => q + 1)}
                         disabled={!inStock}
+                        aria-label="Increase quantity"
                         className="w-8 h-8 flex items-center justify-center hover:bg-[#182238] rounded-md transition-colors text-[#8592AC] hover:text-[#EDF1F7] disabled:opacity-40"
                       >
                         <FiPlus className="w-3.5 h-3.5" />
@@ -166,15 +161,69 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     onClick={handleAddToCart}
                     disabled={!inStock}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#5B8DEF] hover:bg-[#4A7CE0] disabled:opacity-40 disabled:cursor-not-allowed text-[#0A0E1A] rounded-xl font-semibold text-sm transition-all active:scale-[0.99]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#5B8DEF] hover:bg-[#4A7CE0] disabled:opacity-40 disabled:cursor-not-allowed text-[#0A0E1A] rounded-lg font-semibold text-sm transition-all active:scale-[0.99] cursor-pointer"
                   >
                     <FiShoppingCart className="w-4 h-4" />
                     {inStock ? 'Add to Cart' : 'Out of Stock'}
                   </button>
+
+                  {/* Trust bullets */}
+                  <div className="pt-6 border-t border-[#232F49] grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="flex items-center gap-3">
+                      <FiTruck className="w-4 h-4 text-[#5B8DEF] flex-shrink-0" />
+                      <p className="text-xs text-[#8592AC] font-body">Fast, tracked delivery</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FiShield className="w-4 h-4 text-[#5B8DEF] flex-shrink-0" />
+                      <p className="text-xs text-[#8592AC] font-body">Genuine, verified products</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FiRefreshCw className="w-4 h-4 text-[#5B8DEF] flex-shrink-0" />
+                      <p className="text-xs text-[#8592AC] font-body">Easy returns &amp; support</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Related products */}
+          {related.length > 0 && !isAdmin && (
+            <div className="mb-8">
+              <div className="flex items-end justify-between gap-4 mb-7">
+                <div>
+                  <p className="text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-2">You may also like</p>
+                  <h2 className="text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">Related Products</h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                {related.map((rel) => (
+                  <button
+                    key={rel._id}
+                    onClick={() => navigate(`/products/${rel.slug}-${rel._id}`)}
+                    className="group text-left bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                  >
+                    <div className="relative h-[140px] overflow-hidden bg-[#0A0E1A]">
+                      <img
+                        src={getImageUrl(rel.image) || 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&q=80'}
+                        alt={rel.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-3.5">
+                      <h3 className="text-sm font-display font-medium text-[#EDF1F7] line-clamp-1 mb-1.5">
+                        {rel.name}
+                      </h3>
+                      <span className="text-sm font-mono font-semibold text-[#FFB238]">
+                        Rs. {rel.price.toLocaleString()}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

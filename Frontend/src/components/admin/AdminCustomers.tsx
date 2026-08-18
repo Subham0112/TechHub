@@ -3,7 +3,7 @@ import axios from 'axios'
 import { FiUsers, FiSearch, FiMail, FiPhone } from 'react-icons/fi'
 import type { AdminCustomer } from '../../types'
 
-const AdminCustomers: React.FC = () => {
+const AdminCustomers = () => {
   const [customers, setCustomers] = useState<AdminCustomer[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')

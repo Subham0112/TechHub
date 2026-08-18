@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../context/UserContext'
 import EditProfileModal from '../EditProfileModal'
 import {
@@ -19,7 +20,7 @@ const formatMemberSince = (dateStr?: string): string | null => {
 }
 
 // ── Small reusable pieces ──────────────────────────────────────
-const InfoRow: React.FC<{ icon: IconType; label: string; value?: string; copyable?: boolean }> = ({ label, value, copyable }) => {
+const InfoRow = ({ icon: Icon, label, value, copyable }: { icon: IconType; label: string; value?: string; copyable?: boolean }) => {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -30,18 +31,18 @@ const InfoRow: React.FC<{ icon: IconType; label: string; value?: string; copyabl
   }
 
   return (
-    <div className='flex items-start gap-3 py-3.5 first:pt-0 last:pb-0 border-b border-slate-800 last:border-0'>
-      <div className='w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5'>
-        {/* <Icon className='w-4 h-4 text-indigo-400' /> */}
+    <div className='flex items-start gap-3 py-3.5 first:pt-0 last:pb-0 border-b border-[#232F49] last:border-0'>
+      <div className='w-9 h-9 rounded-lg bg-[#182238] border border-[#232F49] flex items-center justify-center flex-shrink-0 mt-0.5'>
+        <Icon className='w-4 h-4 text-[#5B8DEF]' />
       </div>
       <div className='flex-1 min-w-0'>
-        <p className='text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5'>{label}</p>
-        <p className='text-sm text-slate-200 break-words'>{value || <span className='text-slate-600'>Not set</span>}</p>
+        <p className='text-[11px] font-mono font-semibold text-[#8592AC] uppercase tracking-wider mb-0.5'>{label}</p>
+        <p className='text-sm text-[#EDF1F7] break-words'>{value || <span className='text-[#5C6270]'>Not set</span>}</p>
       </div>
       {copyable && value && (
         <button
           onClick={handleCopy}
-          className='p-1.5 rounded-md text-slate-500 hover:text-white hover:bg-slate-700 transition-all flex-shrink-0'
+          className='p-1.5 rounded-md text-[#8592AC] hover:text-[#EDF1F7] hover:bg-[#182238] transition-all flex-shrink-0 cursor-pointer'
           title='Copy'
         >
           {copied ? <FiCheckCircle className='w-3.5 h-3.5 text-emerald-400' /> : <FiCopy className='w-3.5 h-3.5' />}
@@ -51,36 +52,37 @@ const InfoRow: React.FC<{ icon: IconType; label: string; value?: string; copyabl
   )
 }
 
-const QuickLink: React.FC<{
+const QuickLink = ({ icon: Icon, label, description, onClick, disabled }: {
   icon: IconType;
   label: string;
   description: string;
   onClick?: () => void;
   disabled?: boolean;
-}> = ({ icon: Icon, label, description, onClick, disabled }) => (
+}) => (
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left
+    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left cursor-pointer
       ${disabled
-        ? 'border-slate-800 bg-slate-800/30 cursor-not-allowed opacity-60'
-        : 'border-slate-700/60 bg-slate-800/60 hover:bg-slate-800 hover:border-indigo-500/40'}`}
+        ? 'border-[#232F49] bg-[#121A2E]/30 cursor-not-allowed opacity-60'
+        : 'border-[#232F49] bg-[#121A2E] hover:bg-[#182238] hover:border-[#5B8DEF]/40'}`}
   >
-    <div className='w-9 h-9 rounded-lg bg-indigo-600/15 border border-indigo-500/25 flex items-center justify-center flex-shrink-0'>
-      <Icon className='w-4 h-4 text-indigo-400' />
+    <div className='w-9 h-9 rounded-lg bg-[#5B8DEF]/10 border border-[#5B8DEF]/25 flex items-center justify-center flex-shrink-0'>
+      <Icon className='w-4 h-4 text-[#5B8DEF]' />
     </div>
     <div className='flex-1 min-w-0'>
-      <p className='text-sm font-semibold text-white'>{label}</p>
-      <p className='text-xs text-slate-500 truncate'>{description}</p>
+      <p className='text-sm font-semibold text-[#EDF1F7]'>{label}</p>
+      <p className='text-xs text-[#8592AC] truncate'>{description}</p>
     </div>
   </button>
 )
 
 // ── Main Page ────────────────────────────────────────────────────
-const ProfilePage: React.FC = () => {
+const ProfilePage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { user, saveUser } = useContext(UserContext)
+  const navigate = useNavigate()
 
   const handleProfileUpdate = (updatedData: Partial<User>) => {
     saveUser({ ...user, ...updatedData } as User)
@@ -90,22 +92,14 @@ const ProfilePage: React.FC = () => {
   const isAdmin = user?.role === 'admin'
 
   return (
-    <div className='min-h-screen bg-[#0a0f1e] text-white pb-16'>
-      {/* Top accent bar — consistent with the rest of the app */}
-      <div className='h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500' />
+    <div className='min-h-screen bg-[#0A0E1A] text-[#EDF1F7] pb-16'>
 
       <div className='max-w-4xl mx-auto px-4 sm:px-6 py-10'>
 
-        {/* ── Hero header ── */}
-        <div className='relative overflow-hidden rounded-2xl border border-slate-700/60 bg-gradient-to-b from-slate-800/70 to-slate-900/70 backdrop-blur-sm p-6 sm:p-8 mb-6'>
+        {/* ── Profile header ── */}
+        <div className='relative bg-[#121A2E] border border-[#232F49] rounded-2xl p-6 sm:p-8 mb-6'>
 
-          {/* Ambient glow — matches ProductCategoryPage's background treatment */}
-          <div className='absolute inset-0 pointer-events-none overflow-hidden'>
-            <div className='absolute -top-24 -left-24 w-72 h-72 bg-indigo-600/15 rounded-full blur-[100px]' />
-            <div className='absolute -bottom-24 -right-24 w-72 h-72 bg-violet-600/15 rounded-full blur-[100px]' />
-          </div>
-
-          <div className='relative z-10 flex flex-col sm:flex-row sm:items-center gap-6'>
+          <div className='flex flex-col sm:flex-row sm:items-center gap-6'>
 
             {/* Avatar */}
             <div className='relative flex-shrink-0 mx-auto sm:mx-0'>
@@ -113,10 +107,10 @@ const ProfilePage: React.FC = () => {
                 <img
                   src={user.avatar}
                   alt={user?.name}
-                  className='w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-slate-700 ring-4 ring-slate-800'
+                  className='w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-[#232F49] ring-4 ring-[#182238]'
                 />
               ) : (
-                <div className='w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-indigo-600/30 to-violet-600/30 border-2 border-indigo-500/30 ring-4 ring-slate-800 flex items-center justify-center text-2xl font-bold text-indigo-300'>
+                <div className='w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#182238] border-2 border-[#5B8DEF]/40 ring-4 ring-[#0A0E1A] flex items-center justify-center text-2xl font-bold text-[#5B8DEF]'>
                   {getInitials(user?.name) || '?'}
                 </div>
               )}
@@ -125,18 +119,18 @@ const ProfilePage: React.FC = () => {
             {/* Identity */}
             <div className='flex-1 min-w-0 text-center sm:text-left'>
               <div className='flex flex-col sm:flex-row sm:items-center gap-2 mb-1'>
-                <h1 className='text-2xl font-extrabold text-white truncate'>{user?.name || 'No name'}</h1>
-                <span className={`inline-flex items-center gap-1 self-center sm:self-auto text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider w-fit mx-auto sm:mx-0
+                <h1 className='text-2xl font-display font-semibold text-[#EDF1F7] truncate'>{user?.name || 'No name'}</h1>
+                <span className={`inline-flex items-center gap-1 self-center sm:self-auto text-[11px] font-mono font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider w-fit mx-auto sm:mx-0
                   ${isAdmin
-                    ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
-                    : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'}`}>
+                    ? 'bg-[#FFB238]/10 text-[#FFB238] border border-[#FFB238]/30'
+                    : 'bg-[#5B8DEF]/10 text-[#5B8DEF] border border-[#5B8DEF]/30'}`}>
                   <FiShield className='w-3 h-3' />
                   {user?.role || 'user'}
                 </span>
               </div>
-              <p className='text-sm text-slate-400 mb-1'>{user?.email || 'No email'}</p>
+              <p className='text-sm text-[#8592AC] font-body mb-1'>{user?.email || 'No email'}</p>
               {memberSince && (
-                <p className='text-xs text-slate-500 flex items-center gap-1.5 justify-center sm:justify-start'>
+                <p className='text-xs text-[#5C6270] flex items-center gap-1.5 justify-center sm:justify-start'>
                   <FiCalendar className='w-3 h-3' />
                   Member since {memberSince}
                 </p>
@@ -147,7 +141,7 @@ const ProfilePage: React.FC = () => {
             <div className='flex-shrink-0 mx-auto sm:mx-0'>
               <button
                 onClick={() => setIsEditModalOpen(true)}
-                className='inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-900/40'
+                className='inline-flex items-center gap-2 bg-[#5B8DEF] hover:bg-[#4A7CE0] text-[#0A0E1A] text-sm font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 cursor-pointer'
               >
                 <FiEdit2 className='w-4 h-4' />
                 Edit Profile
@@ -161,12 +155,12 @@ const ProfilePage: React.FC = () => {
 
           {/* Left: Personal information */}
           <div className='lg:col-span-2'>
-            <div className='bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6'>
+            <div className='bg-[#121A2E] border border-[#232F49] rounded-2xl p-6'>
               <div className='flex items-center justify-between mb-2'>
-                <h2 className='text-base font-bold text-white'>Personal Information</h2>
+                <h2 className='text-base font-display font-semibold text-[#EDF1F7]'>Personal Information</h2>
                 <button
                   onClick={() => setIsEditModalOpen(true)}
-                  className='text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors'
+                  className='text-xs font-semibold text-[#5B8DEF] hover:text-[#EDF1F7] transition-colors cursor-pointer'
                 >
                   Edit
                 </button>
@@ -181,12 +175,12 @@ const ProfilePage: React.FC = () => {
 
           {/* Right: Quick actions */}
           <div className='space-y-3'>
-            <p className='text-[11px] font-bold text-slate-500 uppercase tracking-widest px-1'>Account</p>
+            <p className='text-[11px] font-mono font-semibold text-[#8592AC] uppercase tracking-widest px-1'>Account</p>
             <QuickLink
               icon={FiPackage}
               label='My Orders'
               description='Track and review past orders'
-              onClick={() => { /* navigate to order history route */ }}
+              onClick={() => navigate('/orders')}
             />
             <QuickLink
               icon={FiLock}

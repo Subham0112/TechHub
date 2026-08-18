@@ -19,7 +19,7 @@ import { UserContext } from "./context/UserContext";
 import { CartContext } from "./context/CartContext";
 
 /* Viewfinder corner brackets — the recurring signature motif */
-const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) => (
+const Corners = ({ color = "border-[#5B8DEF]" }: { color?: string }) => (
   <>
     <span
       className={`absolute -top-px -left-px w-3 h-3 border-t-2 border-l-2 ${color} pointer-events-none`}
@@ -37,10 +37,10 @@ const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) =
 );
 
 /* Logo mark — "TH" with an irregular neon-style flicker on its glow */
-const LogoMark: React.FC<{ size?: string; textSize?: string }> = ({
+const LogoMark = ({
   size = "w-9 h-9",
   textSize = "text-[14px]",
-}) => (
+}: { size?: string; textSize?: string }) => (
   <div
     className={`${size} rounded-md bg-[#121A2E] border border-[#232F49] flex items-center justify-center flex-shrink-0`}
   >
@@ -57,7 +57,7 @@ interface CategoryData {
   subcategories: string[];
 }
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

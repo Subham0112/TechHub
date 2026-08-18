@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import CartToast from '../CartToast'
 import type { Product } from '../../types'
 
-const Corners: React.FC<{ color?: string; visible?: string }> = ({ color = "border-[#5B8DEF]", visible = "opacity-100" }) => (
+const Corners = ({ color = "border-[#5B8DEF]", visible = "opacity-100" }: { color?: string; visible?: string }) => (
   <>
     <span className={`absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 ${color} ${visible} pointer-events-none`} />
     <span className={`absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 ${color} ${visible} pointer-events-none`} />
@@ -15,7 +15,7 @@ const Corners: React.FC<{ color?: string; visible?: string }> = ({ color = "bord
   </>
 )
 
-const Cart: React.FC<{ setProducts: React.Dispatch<React.SetStateAction<Product[]>> }> = ({ setProducts }) => {
+const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateAction<Product[]>> }) => {
   const cartContext = useContext(CartContext)
   const cartItems = cartContext?.cartItems ?? []
   const cartLoading = cartContext?.cartLoading ?? true

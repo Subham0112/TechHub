@@ -25,7 +25,7 @@ import TrackOrder from './components/pages/TrackOrder'
 import ProductDetailPage from './components/pages/ProductDetail'
 import type { Product, AlertData } from './types'
 
-const App: React.FC = () => {
+const App = () => {
   const [products, setProducts] = useState<Product[]>([]);
 
   const [alert, setAlert] = useState<AlertData | null>(null);

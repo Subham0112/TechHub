@@ -35,7 +35,7 @@ const STEPS: TrackingStep[] = [
 const STEP_INDEX: Record<string, number> = STEPS.reduce<Record<string, number>>((acc, s, i) => { acc[s.key] = i; return acc }, {})
 
 /* ── Corner brackets — signature motif ── */
-const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) => (
+const Corners = ({ color = "border-[#5B8DEF]" }: { color?: string }) => (
   <>
     <span className={`absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 ${color} pointer-events-none`} />
     <span className={`absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 ${color} pointer-events-none`} />
@@ -45,7 +45,7 @@ const Corners: React.FC<{ color?: string }> = ({ color = "border-[#5B8DEF]" }) =
 )
 
 /* ── Vertical step tracker ── */
-const OrderTracker: React.FC<{ order: Order }> = ({ order }) => {
+const OrderTracker = ({ order }: { order: Order }) => {
   const isCancelled = order.orderStatus === 'cancelled'
   const currentIndex = STEP_INDEX[order.orderStatus] ?? 0
 
@@ -121,7 +121,7 @@ const productImage = (item: OrderItem): string | undefined =>
   typeof item.productId === "string" ? undefined : item.productId?.image;
 
 /* ── Full order detail + tracker ── */
-const OrderTrackingDetail: React.FC<{ order: Order; onBack: () => void }> = ({ order, onBack }) => {
+const OrderTrackingDetail = ({ order, onBack }: { order: Order; onBack: () => void }) => {
   const date = new Date(order.createdAt).toLocaleDateString('en-US', {
     year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
   })
@@ -210,7 +210,7 @@ const OrderTrackingDetail: React.FC<{ order: Order; onBack: () => void }> = ({ o
 }
 
 /* ── Order picker card (for the list view) ── */
-const OrderListItem: React.FC<{ order: Order; onSelect: (order: Order) => void }> = ({ order, onSelect }) => {
+const OrderListItem = ({ order, onSelect }: { order: Order; onSelect: (order: Order) => void }) => {
   const isCancelled = order.orderStatus === 'cancelled'
   const currentIndex = STEP_INDEX[order.orderStatus] ?? 0
   const currentStep = STEPS[currentIndex]
@@ -242,7 +242,7 @@ const OrderListItem: React.FC<{ order: Order; onSelect: (order: Order) => void }
 }
 
 /* ── Main Page ── */
-const TrackOrder: React.FC = () => {
+const TrackOrder = () => {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
