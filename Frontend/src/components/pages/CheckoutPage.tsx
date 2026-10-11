@@ -1,9 +1,11 @@
 // components/pages/CheckoutPage.tsx
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useMemo } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
-import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag, FiSmartphone, FiCreditCard, FiTruck } from 'react-icons/fi'
+import { useOffers } from '../context/OffersContext'
+import { computeCartPricing } from '../../utils/pricing'
+import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag, FiSmartphone, FiCreditCard, FiTruck, FiTag } from 'react-icons/fi'
 import type { IconType } from 'react-icons'
 import type { Product } from '../../types'
 
@@ -137,8 +139,9 @@ const CheckoutPage = ({ products: _products }: { products: Product[] }) => {
   const [paymentMethod, setPaymentMethod] = useState('')
   const [paymentError, setPaymentError] = useState('')
   const cartContext = useContext(CartContext)
-  const cartItems = cartContext?.cartItems ?? []
+  const cartItems = useMemo(() => cartContext?.cartItems ?? [], [cartContext])
   const clearCart = cartContext?.clearCart ?? (async () => {})
+  const { offers } = useOffers()
 
   const [address, setAddress] = useState<AddressData>({
     fullName: '',
@@ -150,19 +153,27 @@ const CheckoutPage = ({ products: _products }: { products: Product[] }) => {
     notes: '',
   })
 
-  const items: CheckoutItem[] = cartItems.map(item => {
-    const product = typeof item.productId === 'string' ? null : item.productId
-    return {
-      id: product?._id,
-      name: product?.name,
-      image: product?.image,
-      price: product?.price || 0,
-      quantity: item.quantity,
-      subtotal: (product?.price || 0) * item.quantity,
-    }
-  })
+  const pricing = useMemo(() => {
+    const pricedItems = cartItems
+      .map((item) => ({
+        product: typeof item.productId === 'string' ? null : item.productId,
+        quantity: item.quantity,
+      }))
+      .filter((i): i is { product: Product; quantity: number } => i.product !== null)
+    return computeCartPricing(pricedItems, offers)
+  }, [cartItems, offers])
 
-  const totalPrice = items.reduce((sum, i) => sum + i.subtotal, 0)
+  const items: CheckoutItem[] = pricing.lines.map(line => ({
+    id: line.product._id,
+    name: line.product.name,
+    image: line.product.image,
+    price: line.unitPrice,
+    quantity: line.quantity,
+    subtotal: line.subtotal,
+  }))
+
+  const totalPrice = pricing.total
+  const comboDiscount = pricing.discount
 
   const validate = (): Record<string, string> => {
     const e: Record<string, string> = {}
@@ -434,8 +445,19 @@ const CheckoutPage = ({ products: _products }: { products: Product[] }) => {
               <div className='border-t border-slate-700 pt-4 space-y-2'>
                 <div className='flex justify-between text-sm text-slate-400'>
                   <span>Subtotal</span>
-                  <span>Rs. {totalPrice.toLocaleString()}</span>
+                  <span>Rs. {pricing.itemsSubtotal.toLocaleString()}</span>
                 </div>
+                {comboDiscount > 0 && (
+                  <div className='flex justify-between text-sm'>
+                    <span className='text-emerald-400 flex items-center gap-1.5'>
+                      <FiTag className='w-3.5 h-3.5' />
+                      Combo savings
+                    </span>
+                    <span className='text-emerald-400 font-medium'>
+                      − Rs. {comboDiscount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
                 <div className='flex justify-between text-sm text-slate-400'>
                   <span>Shipping</span>
                   <span className='text-emerald-400 font-medium'>Free</span>

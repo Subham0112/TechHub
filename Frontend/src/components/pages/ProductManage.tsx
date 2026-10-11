@@ -7,10 +7,10 @@ import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiPackage } from 'react-icons/fi'
 import type { AlertData, Product } from '../../types'
 
 const StatCard = ({ label, value, accent }: { label: string; value: number; accent: string }) => (
-  <div className='relative overflow-hidden bg-[#121A2E] border border-[#232F49] rounded-xl px-5 py-4'>
-    <div className={`absolute top-0 left-0 w-1 h-full ${accent}`} />
-    <p className='text-[10px] font-mono text-[#8592AC] uppercase tracking-widest mb-1'>{label}</p>
-    <p className='text-2xl font-display font-semibold text-[#EDF1F7]'>{value}</p>
+  <div className='relative overflow-hidden bg-[var(--adm-card)] border border-[var(--adm-border)] rounded-lg pl-4 pr-3 py-2.5'>
+    <div className={`absolute top-0 left-0 w-[3px] h-full ${accent}`} />
+    <p className='text-[9px] font-mono text-[var(--adm-muted)] uppercase tracking-widest truncate'>{label}</p>
+    <p className='text-lg leading-tight font-display font-semibold text-[var(--adm-heading)]'>{value}</p>
   </div>
 )
 
@@ -99,164 +99,140 @@ const ManageProducts = ({ handleAlert }: { handleAlert: (alert: AlertData) => vo
 
   return (
     <>
-      <div className='relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7] pb-10'>
+      <div className='min-h-screen bg-[var(--adm-bg)] text-[var(--adm-heading)] pb-10'>
 
-        {/* Global blueprint grid */}
-        <div
-          className="fixed inset-0 opacity-[0.05] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
+        <div className='max-w-7xl mx-auto pt-6 pb-4 px-4 sm:px-6'>
 
-        <div className='relative max-w-7xl mx-auto py-10 px-4 sm:px-6'>
+          {/* Stat Cards */}
+          <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5'>
+            <StatCard label='Total Products' value={products.length} accent='bg-[var(--adm-accent)]' />
+            <StatCard label='Total Stock' value={totalStock} accent='bg-[var(--adm-accent-70)]' />
+            <StatCard label='In Stock' value={inStock} accent='bg-emerald-500' />
+            <StatCard label='Out of Stock' value={outOfStock} accent='bg-rose-500' />
+          </div>
 
-          {/* Header */}
-          <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-10'>
-            <div>
-              <p className='text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1.5'>
-                // Admin Panel
-              </p>
-              <h1 className='text-2xl md:text-3xl font-display font-semibold text-[#EDF1F7]'>
-                Product Management
-              </h1>
-              <p className='text-sm text-[#8592AC] font-body mt-1'>
-                Manage your inventory, add new products, and track stock.
-              </p>
+          {/* Toolbar: search + add button */}
+          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4'>
+            <div className='relative w-full sm:w-80'>
+              <FiSearch className='absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--adm-dim)]' />
+              <input
+                type='text'
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder='Search by name, category or type...'
+                className='w-full bg-[var(--adm-card)] border border-[var(--adm-border)] text-[var(--adm-heading)] text-sm rounded-lg pl-10 pr-4 py-2 placeholder-[var(--adm-placeholder)] focus:outline-none focus:ring-2 focus:ring-[var(--adm-accent)] focus:border-transparent transition-all'
+              />
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className='inline-flex items-center gap-2 bg-[#5B8DEF] hover:bg-[#4A7CE0] active:scale-95 text-[#0A0E1A] text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-200 self-start sm:self-auto whitespace-nowrap'
+              className='inline-flex items-center justify-center gap-2 bg-[var(--adm-accent)] hover:bg-[var(--adm-accent-hover)] active:scale-95 text-[var(--adm-accent-contrast)] text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer'
             >
               <FiPlus className='w-4 h-4' />
               Add Product
             </button>
           </div>
 
-          {/* Stat Cards */}
-          <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8'>
-            <StatCard label='Total Products' value={products.length} accent='bg-[#5B8DEF]' />
-            <StatCard label='Total Stock' value={totalStock} accent='bg-violet-500' />
-            <StatCard label='In Stock' value={inStock} accent='bg-emerald-500' />
-            <StatCard label='Out of Stock' value={outOfStock} accent='bg-rose-500' />
-          </div>
-
-          {/* Search */}
-          <div className='relative mb-5'>
-            <FiSearch className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5C6270]' />
-            <input
-              type='text'
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder='Search by name, category or type...'
-              className='w-full sm:w-80 bg-[#121A2E] border border-[#232F49] text-[#EDF1F7] text-sm rounded-xl pl-10 pr-4 py-2.5 placeholder-[#5C6270] focus:outline-none focus:ring-2 focus:ring-[#5B8DEF] focus:border-transparent transition-all'
-            />
-          </div>
-
           {/* Table */}
           {loading ? (
             <div className='flex flex-col items-center justify-center py-32 gap-4'>
-              <div className='w-12 h-12 rounded-full border-4 border-[#232F49] border-t-[#5B8DEF] animate-spin' />
-              <p className='text-[#8592AC] text-sm font-mono tracking-wide'>Fetching products...</p>
+              <div className='w-12 h-12 rounded-full border-4 border-[var(--adm-border)] border-t-[var(--adm-accent)] animate-spin' />
+              <p className='text-[var(--adm-muted)] text-sm font-mono tracking-wide'>Fetching products...</p>
             </div>
           ) : (
-            <div className='rounded-2xl border border-[#232F49] overflow-hidden'>
+            <div className='rounded-2xl border border-[var(--adm-border)] overflow-hidden'>
 
-              <div className='bg-[#121A2E] px-5 py-3 flex items-center justify-between border-b border-[#232F49]'>
-                <p className='text-xs font-mono text-[#8592AC]'>
-                  Showing <span className='text-[#EDF1F7] font-semibold'>{products.length}</span> products
+              <div className='bg-[var(--adm-card)] px-5 py-3 flex items-center justify-between border-b border-[var(--adm-border)]'>
+                <p className='text-xs font-mono text-[var(--adm-muted)]'>
+                  Showing <span className='text-[var(--adm-heading)] font-semibold'>{products.length}</span> products
                 </p>
               </div>
 
               <div className='overflow-x-auto'>
                 <table className='min-w-full'>
-                  <thead className='bg-[#121A2E]/70'>
+                  <thead className='bg-[var(--adm-subtle)]'>
                     <tr>
                       {['Product', 'Price', 'Description', 'Category', 'Type', 'Stock', 'Actions'].map(col => (
-                        <th key={col} className='px-5 py-3.5 text-left text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest'>
+                        <th key={col} className='px-4 py-3.5 text-left text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest'>
                           {col}
                         </th>
                       ))}
                     </tr>
                   </thead>
 
-                  <tbody className='bg-[#0A0E1A] divide-y divide-[#232F49]'>
+                  <tbody className='bg-[var(--adm-card)] divide-y divide-[var(--adm-border)]'>
                     {products.length > 0 ? (
                       products.map((product, index) => (
-                        <tr key={index} className='hover:bg-[#121A2E]/50 transition-colors duration-150 group'>
+                        <tr key={index} className='hover:bg-[var(--adm-subtle)] transition-colors duration-150 group'>
 
-                          <td className='px-5 py-4'>
+                          <td className='px-4 py-4'>
                             <div className='flex items-center gap-3'>
-                              <div className='flex-shrink-0 h-10 w-10 rounded-lg overflow-hidden border border-[#232F49] bg-[#121A2E]'>
+                              <div className='flex-shrink-0 h-10 w-10 rounded-lg overflow-hidden border border-[var(--adm-border)] bg-[var(--adm-card)]'>
                                 <img
                                   src={getImageUrl(product.image)}
                                   alt={product.name}
                                   className='h-full w-full object-cover'
-                                  onError={e => { e.currentTarget.src = 'https://placehold.co/40x40/121A2E/8592AC?text=?' }}
+                                  onError={e => { e.currentTarget.src = 'https://placehold.co/40x40/E2E8F0/64748B?text=?' }}
                                 />
                               </div>
-                              <span className='text-sm font-semibold text-[#EDF1F7] whitespace-nowrap'>
+                              <span className='text-sm font-semibold text-[var(--adm-heading)] whitespace-nowrap'>
                                 {product.name}
                               </span>
                             </div>
                           </td>
 
-                          <td className='px-5 py-4'>
-                            <span className='text-sm font-mono font-bold text-[#FFB238]'>
+                          <td className='px-4 py-4'>
+                            <span className='text-sm font-mono font-bold text-[var(--adm-money)] whitespace-nowrap'>
                               Rs. {product.price}
                             </span>
                           </td>
 
-                          <td className='px-5 py-4 max-w-[220px]'>
-                            <p className='text-sm text-[#8592AC] truncate'>
+                          <td className='px-4 py-4 max-w-[160px]'>
+                            <p className='text-sm text-[var(--adm-muted)] truncate'>
                               {product.description}
                             </p>
                           </td>
 
-                          <td className='px-5 py-4'>
-                            <span className={`inline-flex items-center text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full whitespace-nowrap uppercase tracking-wide
-                              ${product.category === 'gadgets'
-                                ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
-                                : 'bg-[#5B8DEF]/15 text-[#5B8DEF] border border-[#5B8DEF]/30'}`}>
-                              {product.category}
+                        <td className='px-4 py-4'>
+                            <span className='inline-flex items-center gap-2 text-sm text-[var(--adm-muted)] whitespace-nowrap capitalize'>
+                            <span className='w-1.5 h-1.5 rounded-full bg-[var(--adm-accent)] flex-shrink-0' />
+                               {product.category?.replace(/-/g, ' ')}
+                            </span>
+                        </td>
+
+                          <td className='px-4 py-4'>
+                            <span className='text-sm text-[var(--adm-muted)] whitespace-nowrap'>
+                              {product.type || <span className='text-[var(--adm-dim)]'>—</span>}
                             </span>
                           </td>
 
-                          <td className='px-5 py-4'>
-                            <span className='text-sm text-[#8592AC] whitespace-nowrap'>
-                              {product.type || <span className='text-[#5C6270]'>—</span>}
-                            </span>
-                          </td>
-
-                          <td className='px-5 py-4'>
+                          <td className='px-4 py-4'>
                             {product.stock > 0 ? (
                               <div className='flex items-center gap-2'>
-                                <span className='w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0' />
-                                <span className='text-sm font-medium text-emerald-400 whitespace-nowrap'>
+                                <span className='w-1.5 h-1.5 rounded-full bg-[var(--st-emerald)] flex-shrink-0' />
+                                <span className='text-sm font-medium text-[var(--st-emerald)] whitespace-nowrap'>
                                   {product.stock} units
                                 </span>
                               </div>
                             ) : (
                               <div className='flex items-center gap-2'>
                                 <span className='w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0' />
-                                <span className='text-sm font-medium text-rose-400'>Out of stock</span>
+                                <span className='text-sm font-medium text-[var(--st-rose)] whitespace-nowrap'>Out of stock</span>
                               </div>
                             )}
                           </td>
 
-                          <td className='px-5 py-4'>
+                          <td className='px-4 py-4'>
                             <div className='flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150'>
                               <button
                                 onClick={() => handleEditClick(product)}
-                                className='p-1.5 rounded-lg bg-[#182238] hover:bg-[#5B8DEF] text-[#8592AC] hover:text-[#0A0E1A] transition-all duration-150'
+                                className='p-1.5 rounded-lg bg-[var(--adm-chip)] hover:bg-[var(--adm-accent)] text-[var(--adm-muted)] hover:text-[var(--adm-accent-contrast)] transition-all duration-150 cursor-pointer'
                                 title='Edit'
                               >
                                 <FiEdit2 className='w-3.5 h-3.5' />
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(product)}
-                                className='p-1.5 rounded-lg bg-[#182238] hover:bg-rose-600 text-[#8592AC] hover:text-white transition-all duration-150'
+                                className='p-1.5 rounded-lg bg-[var(--adm-chip)] hover:bg-[var(--st-rose)] text-[var(--adm-muted)] hover:text-[var(--adm-accent-contrast)] transition-all duration-150 cursor-pointer'
                                 title='Delete'
                               >
                                 <FiTrash2 className='w-3.5 h-3.5' />
@@ -269,16 +245,16 @@ const ManageProducts = ({ handleAlert }: { handleAlert: (alert: AlertData) => vo
                       <tr>
                         <td colSpan={7} className='px-5 py-20 text-center'>
                           <div className='flex flex-col items-center gap-3'>
-                            <div className='w-14 h-14 rounded-xl bg-[#121A2E] border border-[#232F49] flex items-center justify-center'>
-                              <FiPackage className='w-6 h-6 text-[#5C6270]' />
+                            <div className='w-14 h-14 rounded-xl bg-[var(--adm-card)] border border-[var(--adm-border)] flex items-center justify-center'>
+                              <FiPackage className='w-6 h-6 text-[var(--adm-dim)]' />
                             </div>
-                            <p className='text-[#8592AC] text-sm'>
+                            <p className='text-[var(--adm-muted)] text-sm'>
                               {search ? `No results for "${search}"` : 'No products yet'}
                             </p>
                             {!search && (
                               <button
                                 onClick={() => setIsModalOpen(true)}
-                                className='text-[#5B8DEF] text-sm hover:text-[#7BA3F5] font-medium transition-colors'
+                                className='text-[var(--adm-accent)] text-sm hover:text-[var(--adm-accent-hover)] font-medium transition-colors cursor-pointer'
                               >
                                 + Add your first product
                               </button>

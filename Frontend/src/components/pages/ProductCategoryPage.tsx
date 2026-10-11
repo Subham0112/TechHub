@@ -22,7 +22,7 @@ const ProductCard = ({ product, idx, handleCartClick }: {
     >
       <div className="relative h-[180px] overflow-hidden bg-[#0A0E1A]">
         <img
-          src={getImageUrl(product.image) || 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&q=80'}
+          src={getImageUrl(product.image)}
           alt={product.name}
           onClick={() => navigate(productHref)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
@@ -32,6 +32,12 @@ const ProductCard = ({ product, idx, handleCartClick }: {
           <span className={`absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2 py-1 rounded-full bg-[#0A0E1A]/75 backdrop-blur-sm text-[10px] font-mono uppercase tracking-wide ${product.stock > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? 'bg-emerald-400' : 'bg-rose-400'}`} />
             {product.stock > 0 ? 'In stock' : 'Sold out'}
+          </span>
+        )}
+
+        {product.offerPrice != null && product.offerPrice < product.price && (
+          <span className="absolute top-2.5 right-2.5 px-2 py-1 rounded-full bg-[#FFB238] text-[#0A0E1A] text-[10px] font-mono font-bold uppercase tracking-wide">
+            {product.offerLabel ?? 'Offer'}
           </span>
         )}
 
@@ -60,9 +66,16 @@ const ProductCard = ({ product, idx, handleCartClick }: {
         </p>
 
         <div className="flex items-center justify-between pt-3 border-t border-[#232F49]">
-          <span className="text-base font-mono font-semibold text-[#FFB238]">
-            Rs. {product.price.toLocaleString()}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-base font-mono font-semibold text-[#FFB238]">
+              Rs. {(product.offerPrice ?? product.price).toLocaleString()}
+            </span>
+            {product.offerPrice != null && product.offerPrice < product.price && (
+              <span className="text-[11px] font-mono text-[#8592AC] line-through">
+                Rs. {product.price.toLocaleString()}
+              </span>
+            )}
+          </div>
           <button
             onClick={() => handleCartClick(product)}
             disabled={product.stock === 0}

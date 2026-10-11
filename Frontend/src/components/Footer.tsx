@@ -35,7 +35,7 @@ const Footer = () => {
             </h4>
             <ul className="space-y-2.5 text-sm font-body">
               <li>
-                <a href="#" className="hover:text-[#EDF1F7] transition">
+                <a href="/contact" className="hover:text-[#EDF1F7] transition">
                   Contact Us
                 </a>
               </li>

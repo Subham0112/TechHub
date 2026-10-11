@@ -5,6 +5,8 @@ import { CartContext } from '../context/CartContext'
 import { UserContext } from '../context/UserContext'
 import { getImageUrl } from '../../utils/imageUtils'
 import CartToast from '../CartToast'
+import StarRating from '../StarRating'
+import ProductReviews from './ProductReviews'
 import { FiArrowLeft, FiShoppingCart, FiMinus, FiPlus, FiPackage, FiShield, FiTruck, FiRefreshCw } from 'react-icons/fi'
 import type { Product } from '../../types'
 
@@ -104,7 +106,7 @@ const ProductDetailPage = () => {
 
             <div className="relative bg-[#121A2E] border border-[#232F49] rounded-2xl overflow-hidden aspect-square">
               <img
-                src={getImageUrl(product.image) || 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=800&q=80'}
+                src={getImageUrl(product.image)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -118,6 +120,15 @@ const ProductDetailPage = () => {
                 {product.name}
               </h1>
 
+              {!!product.reviewCount && product.reviewCount > 0 && (
+                <div className="flex items-center gap-2 mb-4">
+                  <StarRating rating={product.rating ?? 0} size={14} />
+                  <span className="text-xs font-mono text-[#8592AC]">
+                    {product.rating?.toFixed(1)} · {product.reviewCount} review{product.reviewCount !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+
               {typeof product.stock === 'number' && (
                 <span className={`inline-flex items-center gap-1.5 w-fit px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wide mb-5 ${inStock ? 'bg-emerald-400/10 text-emerald-400' : 'bg-rose-400/10 text-rose-400'}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-400' : 'bg-rose-400'}`} />
@@ -129,8 +140,27 @@ const ProductDetailPage = () => {
                 {product.description}
               </p>
 
-              <div className="text-3xl font-mono font-bold text-[#FFB238] mb-8">
-                Rs. {product.price.toLocaleString()}
+              <div className="mb-8">
+                <div className="flex flex-wrap items-baseline gap-3">
+                  <span className="text-3xl font-mono font-bold text-[#FFB238]">
+                    Rs. {(product.offerPrice ?? product.price).toLocaleString()}
+                  </span>
+                  {product.offerPrice != null && product.offerPrice < product.price && (
+                    <>
+                      <span className="text-lg font-mono text-[#8592AC] line-through">
+                        Rs. {product.price.toLocaleString()}
+                      </span>
+                      <span className="px-2 py-1 rounded-full bg-[#FFB238] text-[#0A0E1A] text-[10px] font-mono font-bold uppercase tracking-wide">
+                        {product.offerLabel ?? 'Offer'}
+                      </span>
+                    </>
+                  )}
+                </div>
+                {product.offerPrice != null && product.offerPrice < product.price && (
+                  <p className="text-xs font-mono text-emerald-400 mt-1.5">
+                    You save Rs. {(product.price - product.offerPrice).toLocaleString()}
+                  </p>
+                )}
               </div>
 
               {!isAdmin && (
@@ -187,6 +217,9 @@ const ProductDetailPage = () => {
             </div>
           </div>
 
+          {/* Reviews */}
+          <ProductReviews productId={Number(product.id ?? product._id)} isAdmin={isAdmin} />
+
           {/* Related products */}
           {related.length > 0 && !isAdmin && (
             <div className="mb-8">
@@ -206,7 +239,7 @@ const ProductDetailPage = () => {
                   >
                     <div className="relative h-[140px] overflow-hidden bg-[#0A0E1A]">
                       <img
-                        src={getImageUrl(rel.image) || 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&q=80'}
+                        src={getImageUrl(rel.image)}
                         alt={rel.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -216,8 +249,13 @@ const ProductDetailPage = () => {
                         {rel.name}
                       </h3>
                       <span className="text-sm font-mono font-semibold text-[#FFB238]">
-                        Rs. {rel.price.toLocaleString()}
+                        Rs. {(rel.offerPrice ?? rel.price).toLocaleString()}
                       </span>
+                      {rel.offerPrice != null && rel.offerPrice < rel.price && (
+                        <span className="ml-1.5 text-[11px] font-mono text-[#8592AC] line-through">
+                          Rs. {rel.price.toLocaleString()}
+                        </span>
+                      )}
                     </div>
                   </button>
                 ))}

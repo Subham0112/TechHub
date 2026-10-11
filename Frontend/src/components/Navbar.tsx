@@ -230,6 +230,12 @@ const Navbar = () => {
               >
                 Products
               </a>
+              <a
+                href="/offers"
+                className="px-4 py-2 text-[#FFB238] hover:text-[#ffc158] rounded-md text-xs font-mono uppercase tracking-wider transition"
+              >
+                Offers
+              </a>
 
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -282,7 +288,7 @@ const Navbar = () => {
                 )}
               </div>
               <a
-                href="#"
+                href="/contact"
                 className="px-4 py-2 text-[#8592AC] hover:text-[#EDF1F7] rounded-md text-xs font-mono uppercase tracking-wider transition"
               >
                 Contact
@@ -509,6 +515,14 @@ const Navbar = () => {
                 Home
               </a>
 
+              <a
+                href="/offers"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 text-[#FFB238] hover:text-[#ffc158] hover:bg-[#121A2E] rounded-lg transition text-sm font-mono uppercase tracking-wide"
+              >
+                Offers
+              </a>
+
               <div>
                 <button
                   onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
@@ -552,7 +566,8 @@ const Navbar = () => {
               </div>
 
               <a
-                href="#"
+                href="/contact"
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 text-[#8592AC] hover:text-[#EDF1F7] hover:bg-[#121A2E] rounded-lg transition text-sm font-mono uppercase tracking-wide"
               >
                 Contact

@@ -78,9 +78,9 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
   if (!hasData) {
     return (
       <div className="flex flex-col items-center justify-center py-14 gap-3">
-        <FiBarChart2 className="w-8 h-8 text-[#2A3752]" />
-        <p className="text-sm text-[#8592AC] font-mono">No sales data for this period</p>
-        <p className="text-xs text-[#5C6270] font-mono">
+        <FiBarChart2 className="w-8 h-8 text-[var(--adm-icon)]" />
+        <p className="text-sm text-[var(--adm-muted)] font-mono">No sales data for this period</p>
+        <p className="text-xs text-[var(--adm-dim)] font-mono">
           Revenue will appear here once customers place orders
         </p>
       </div>
@@ -98,12 +98,12 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
       >
         <defs>
           <linearGradient id="revArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#5B8DEF" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#5B8DEF" stopOpacity="0.02" />
+            <stop offset="0%" style={{ stopColor: 'var(--adm-accent)' }} stopOpacity="0.35" />
+            <stop offset="100%" style={{ stopColor: 'var(--adm-accent)' }} stopOpacity="0.02" />
           </linearGradient>
           <linearGradient id="revLine" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#5B8DEF" />
-            <stop offset="100%" stopColor="#7BA3F5" />
+            <stop offset="0%" style={{ stopColor: 'var(--adm-accent)' }} />
+            <stop offset="100%" stopColor="#60A5FA" />
           </linearGradient>
         </defs>
 
@@ -114,11 +114,11 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
               x2={W - PAD.right}
               y1={t.y}
               y2={t.y}
-              stroke="#232F49"
+              style={{ stroke: 'var(--adm-border)' }}
               strokeOpacity="0.6"
               strokeDasharray={i === 0 ? '0' : '3 4'}
             />
-            <text x={PAD.left - 8} y={t.y + 3} textAnchor="end" fontSize="9.5" fill="#5C6270" fontFamily="monospace">
+            <text x={PAD.left - 8} y={t.y + 3} textAnchor="end" fontSize="9.5" style={{ fill: 'var(--adm-muted)' }} fontFamily="'Times New Roman', Times, serif">
               {fmtShort(t.value)}
             </text>
           </g>
@@ -142,8 +142,8 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
               y={H - PAD.bottom + 16}
               textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}
               fontSize="9.5"
-              fill="#5C6270"
-              fontFamily="monospace"
+              style={{ fill: 'var(--adm-muted)' }}
+              fontFamily="'Times New Roman', Times, serif"
             >
               {fmtMonthDay(d.date)}
             </text>
@@ -157,8 +157,8 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
               cx={x(i)}
               cy={y(d.revenue)}
               r="3"
-              fill="#5B8DEF"
-              stroke="#121A2E"
+              style={{ fill: 'var(--adm-accent)' }}
+              style={{ stroke: 'var(--adm-card)' }}
               strokeWidth="1.5"
             />
           ) : null
@@ -171,7 +171,7 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
               x2={x(hover)}
               y1={PAD.top}
               y2={PAD.top + INNER_H}
-              stroke="#FFB238"
+              style={{ stroke: 'var(--adm-money)' }}
               strokeOpacity="0.5"
               strokeDasharray="3 3"
             />
@@ -179,8 +179,8 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
               cx={x(hover)}
               cy={y(data[hover].revenue)}
               r="5"
-              fill="#FFB238"
-              stroke="#121A2E"
+              style={{ fill: 'var(--adm-money)' }}
+              style={{ stroke: 'var(--adm-card)' }}
               strokeWidth="2"
             />
           </g>
@@ -189,20 +189,20 @@ const RevenueChart = ({ data }: { data: RevenuePoint[] }) => {
 
       {hovered && hover !== null && (
         <div
-          className="pointer-events-none absolute z-10 bg-[#0A0E1A] border border-[#2A3752] rounded-lg px-3 py-2 shadow-xl"
+          className="pointer-events-none absolute z-10 bg-[var(--adm-subtle)] border border-[var(--adm-icon)] rounded-lg px-3 py-2 shadow-xl"
           style={{
             left: `calc(${((x(hover) / W) * 100).toFixed(2)}% + 10px)`,
             top: `calc(${((y(data[hover].revenue) / H) * 100).toFixed(2)}% - 46px)`,
             transform: x(hover) > W - 120 ? 'translateX(-110%)' : undefined,
           }}
         >
-          <p className="text-[10px] font-mono text-[#5C6270] uppercase tracking-widest">
+          <p className="text-[10px] font-mono text-[var(--adm-dim)] uppercase tracking-widest">
             {hovered.label}, {fmtMonthDay(hovered.date)}
           </p>
-          <p className="text-sm font-mono font-bold text-[#FFB238] mt-0.5">
+          <p className="text-sm font-mono font-bold text-[var(--adm-money)] mt-0.5">
             {fmtShort(hovered.revenue)}
           </p>
-          <p className="text-[10px] font-mono text-[#5C6270] mt-0.5">{hovered.orders} order{hovered.orders === 1 ? '' : 's'}</p>
+          <p className="text-[10px] font-mono text-[var(--adm-dim)] mt-0.5">{hovered.orders} order{hovered.orders === 1 ? '' : 's'}</p>
         </div>
       )}
     </div>

@@ -3,6 +3,8 @@ import { CartContext } from './context/CartContext'
 import { UserContext } from './context/UserContext'
 import { getImageUrl } from '../utils/imageUtils'
 import CartToast from './CartToast'
+import StarRating from './StarRating'
+import DealsSection from './DealsSection'
 import { useNavigate } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight, FiShoppingCart, FiTruck, FiShield, FiCreditCard, FiHeadphones, FiArrowRight } from 'react-icons/fi'
 import axios from 'axios'
@@ -67,6 +69,12 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
           </span>
         )}
 
+        {product.offerPrice != null && product.offerPrice < product.price && (
+          <span className="absolute top-2.5 right-2.5 px-2 py-1 rounded-full bg-[#FFB238] text-[#0A0E1A] text-[10px] font-mono font-bold uppercase tracking-wide">
+            {product.offerLabel ?? 'Offer'}
+          </span>
+        )}
+
         {!isAdmin && (
           <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
             <button
@@ -85,16 +93,29 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
         <span className="text-[10px] font-mono text-[#8592AC] uppercase tracking-widest">{product.type || product.category}</span>
         <h3
           onClick={() => navigate(productHref)}
-          className="text-[#EDF1F7] font-display font-medium text-sm mt-1.5 mb-3 line-clamp-2 min-h-[2.5rem] cursor-pointer hover:text-[#5B8DEF] transition-colors"
+          className="text-[#EDF1F7] font-display font-medium text-sm mt-1.5 line-clamp-2 min-h-[2.5rem] cursor-pointer hover:text-[#5B8DEF] transition-colors"
         >
           {product.name}
         </h3>
 
-        <div className="flex items-center justify-between pt-3 border-t border-[#232F49] mt-auto">
-          <span className="text-base font-mono font-semibold text-[#FFB238]">
-            Rs. {product.price.toLocaleString()}
-          </span>
+        {!!product.reviewCount && product.reviewCount > 0 && (
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <StarRating rating={product.rating ?? 0} size={11} />
+            <span className="text-[10px] font-mono text-[#8592AC]">({product.reviewCount})</span>
+          </div>
+        )}
 
+        <div className="flex items-center justify-between pt-3 border-t border-[#232F49] mt-auto">
+          <div className="flex flex-col">
+            <span className="text-base font-mono font-semibold text-[#FFB238]">
+              Rs. {(product.offerPrice ?? product.price).toLocaleString()}
+            </span>
+            {product.offerPrice != null && product.offerPrice < product.price && (
+              <span className="text-[11px] font-mono text-[#8592AC] line-through">
+                Rs. {product.price.toLocaleString()}
+              </span>
+            )}
+          </div>
           {!isAdmin ? (
             <button
               onClick={() => handleCartClick(product)}
@@ -470,6 +491,11 @@ const Homepage = () => {
 
         {/* TRUST BAR */}
         <TrustBar />
+
+        {/* DEALS & COMBOS */}
+        <section className="max-w-7xl mx-auto px-4 pt-16">
+          <DealsSection isAdmin={isAdmin} />
+        </section>
 
         {/* CATEGORIES */}
         <section id="categories" className="max-w-7xl mx-auto px-4 pt-16">

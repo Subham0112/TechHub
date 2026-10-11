@@ -4,14 +4,15 @@ import {
   FiX, FiPackage, FiMapPin, FiClock, FiUser, FiChevronRight, FiCreditCard,
 } from "react-icons/fi";
 import type { Order, OrderItem, OrderStatus, PaymentMethod, PaymentStatus } from "../../types";
+import { getImageUrl, onImageError } from "../../utils/imageUtils";
 
 const STATUS: Record<OrderStatus, { label: string; color: string; bg: string }> = {
-  pending:      { label: "Pending",     color: "text-amber-400",   bg: "bg-amber-400/10 border-amber-400/30" },
-  accepted:     { label: "Accepted",    color: "text-[#5B8DEF]",   bg: "bg-[#5B8DEF]/10 border-[#5B8DEF]/30" },
-  preparing:    { label: "Preparing",   color: "text-orange-400",  bg: "bg-orange-400/10 border-orange-400/30" },
-  "on the way": { label: "On the Way",  color: "text-violet-400",  bg: "bg-violet-400/10 border-violet-400/30" },
-  delivered:    { label: "Delivered",   color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/30" },
-  cancelled:    { label: "Cancelled",   color: "text-rose-400",    bg: "bg-rose-400/10 border-rose-400/30" },
+  pending:      { label: "Pending",     color: "text-[var(--st-amber)]",   bg: "bg-[var(--st-amber-soft)] border-[var(--st-amber-border)]" },
+  accepted:     { label: "Accepted",    color: "text-[var(--adm-accent)]",   bg: "bg-[var(--adm-accent-soft)] border-[var(--adm-accent-border)]" },
+  preparing:    { label: "Preparing",   color: "text-[var(--st-orange)]",  bg: "bg-[var(--st-orange-soft)] border-[var(--st-orange-border)]" },
+  "on the way": { label: "On the Way",  color: "text-[var(--st-violet)]",  bg: "bg-[var(--st-violet-soft)] border-[var(--st-violet-border)]" },
+  delivered:    { label: "Delivered",   color: "text-[var(--st-emerald)]", bg: "bg-[var(--st-emerald-soft)] border-[var(--st-emerald-border)]" },
+  cancelled:    { label: "Cancelled",   color: "text-[var(--st-rose)]",    bg: "bg-[var(--st-rose-soft)] border-[var(--st-rose-border)]" },
 };
 
 const NEXT_ACTION: Partial<Record<OrderStatus, { next: OrderStatus; label: string }>> = {
@@ -71,7 +72,7 @@ const OrderStatusControl = ({ orderId, status, onStatusUpdate }: {
         <button
           onClick={() => updateStatus(action.next)}
           disabled={saving}
-          className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-[#0A0E1A] bg-[#5B8DEF] hover:bg-[#7BA3F5] px-3 py-1.5 rounded-full transition-all disabled:opacity-50 whitespace-nowrap uppercase tracking-wide"
+          className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-[var(--adm-accent-contrast)] bg-[var(--adm-accent)] hover:bg-[var(--adm-accent-hover)] px-3 py-1.5 rounded-full transition-all disabled:opacity-50 whitespace-nowrap uppercase tracking-wide"
         >
           {saving ? "Updating..." : action.label}
           {!saving && <FiChevronRight className="w-3.5 h-3.5" />}
@@ -83,7 +84,7 @@ const OrderStatusControl = ({ orderId, status, onStatusUpdate }: {
           onClick={() => updateStatus("cancelled")}
           disabled={saving}
           title="Cancel order"
-          className="p-1.5 rounded-full text-[#5C6270] hover:text-rose-400 hover:bg-rose-400/10 transition-all disabled:opacity-50"
+          className="p-1.5 rounded-full text-[var(--adm-dim)] hover:text-[var(--st-rose)] hover:bg-[var(--st-rose-soft)] transition-all disabled:opacity-50"
         >
           <FiX className="w-3.5 h-3.5" />
         </button>
@@ -123,8 +124,8 @@ export const PaymentStatusToggle = ({ orderId, paymentStatus, onPaymentUpdate }:
       disabled={saving}
       className={`inline-flex items-center text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full border transition-all disabled:opacity-50 uppercase tracking-wide
         ${isPaid
-          ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/30 hover:bg-emerald-400/20"
-          : "text-rose-400 bg-rose-400/10 border-rose-400/30 hover:bg-rose-400/20"}`}
+          ? "text-[var(--st-emerald)] bg-[var(--st-emerald-soft)] border-[var(--st-emerald-border)] hover:bg-[var(--st-emerald-soft)]"
+          : "text-[var(--st-rose)] bg-[var(--st-rose-soft)] border-[var(--st-rose-border)] hover:bg-[var(--st-rose-soft)]"}`}
     >
       {saving ? "..." : (isPaid ? "Paid" : "Unpaid")}
     </button>
@@ -151,14 +152,14 @@ const OrderModal = ({ order, onClose, onPaymentUpdate }: {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#121A2E] border border-[#232F49] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-[var(--adm-card)] border border-[var(--adm-border)] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
 
-        <div className="sticky top-0 z-10 bg-[#121A2E] border-b border-[#232F49] px-6 py-4 rounded-t-2xl flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-[var(--adm-card)] border-b border-[var(--adm-border)] px-6 py-4 rounded-t-2xl flex items-center justify-between">
           <div>
-            <p className="text-xs text-[#5C6270] font-mono">#{order._id.slice(-8).toUpperCase()}</p>
-            <h2 className="text-base font-display font-semibold text-[#EDF1F7] mt-0.5">Order Details</h2>
+            <p className="text-xs text-[var(--adm-dim)] font-mono">#{order._id.slice(-8).toUpperCase()}</p>
+            <h2 className="text-base font-display font-semibold text-[var(--adm-heading)] mt-0.5">Order Details</h2>
           </div>
-          <button onClick={onClose} className="text-[#8592AC] hover:text-[#EDF1F7] hover:bg-[#182238] p-2 rounded-lg transition-all">
+          <button onClick={onClose} className="text-[var(--adm-muted)] hover:text-[var(--adm-heading)] hover:bg-[var(--adm-chip)] p-2 rounded-lg transition-all">
             <FiX className="w-5 h-5" />
           </button>
         </div>
@@ -166,80 +167,86 @@ const OrderModal = ({ order, onClose, onPaymentUpdate }: {
         <div className="px-6 py-5 space-y-5">
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-4 flex flex-col justify-between">
-              <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest mb-2">Order Status</span>
+            <div className="bg-[var(--adm-subtle)] border border-[var(--adm-border)] rounded-xl p-4 flex flex-col justify-between">
+              <span className="text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest mb-2">Order Status</span>
               <StatusBadge status={order.orderStatus} />
             </div>
-            <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-4 flex flex-col justify-between">
+            <div className="bg-[var(--adm-subtle)] border border-[var(--adm-border)] rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center gap-2 mb-2">
-                <FiCreditCard className="w-3.5 h-3.5 text-[#5B8DEF]" />
-                <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Payment</span>
+                <FiCreditCard className="w-3.5 h-3.5 text-[var(--adm-accent)]" />
+                <span className="text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest">Payment</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#8592AC]">{PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod}</span>
+                <span className="text-xs text-[var(--adm-muted)]">{PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod}</span>
                 <PaymentStatusToggle orderId={order._id} paymentStatus={order.paymentStatus} onPaymentUpdate={onPaymentUpdate} />
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-4">
+            <div className="bg-[var(--adm-subtle)] border border-[var(--adm-border)] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <FiUser className="w-3.5 h-3.5 text-[#5B8DEF]" />
-                <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Customer</span>
+                <FiUser className="w-3.5 h-3.5 text-[var(--adm-accent)]" />
+                <span className="text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest">Customer</span>
               </div>
-              <p className="text-sm font-semibold text-[#EDF1F7]">{customer?.name || "N/A"}</p>
-              <p className="text-xs text-[#8592AC] mt-0.5 truncate">{customer?.email || ""}</p>
+              <p className="text-sm font-semibold text-[var(--adm-heading)]">{customer?.name || "N/A"}</p>
+              <p className="text-xs text-[var(--adm-muted)] mt-0.5 truncate">{customer?.email || ""}</p>
             </div>
-            <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-4">
+            <div className="bg-[var(--adm-subtle)] border border-[var(--adm-border)] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <FiClock className="w-3.5 h-3.5 text-[#5B8DEF]" />
-                <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Ordered</span>
+                <FiClock className="w-3.5 h-3.5 text-[var(--adm-accent)]" />
+                <span className="text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest">Ordered</span>
               </div>
-              <p className="text-sm font-semibold text-[#EDF1F7]">{date}</p>
+              <p className="text-sm font-semibold text-[var(--adm-heading)]">{date}</p>
             </div>
           </div>
 
-          <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-4">
+          <div className="bg-[var(--adm-subtle)] border border-[var(--adm-border)] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <FiMapPin className="w-3.5 h-3.5 text-[#5B8DEF]" />
-              <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Shipping Address</span>
+              <FiMapPin className="w-3.5 h-3.5 text-[var(--adm-accent)]" />
+              <span className="text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest">Shipping Address</span>
             </div>
-            <p className="text-sm text-[#8592AC]">{order.shippingAddress}</p>
+            <p className="text-sm text-[var(--adm-muted)]">{order.shippingAddress}</p>
           </div>
 
-          <div className="bg-[#0A0E1A] border border-[#232F49] rounded-xl p-4">
+          <div className="bg-[var(--adm-subtle)] border border-[var(--adm-border)] rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
-              <FiPackage className="w-3.5 h-3.5 text-[#5B8DEF]" />
-              <span className="text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest">Items ({order.items.length})</span>
+              <FiPackage className="w-3.5 h-3.5 text-[var(--adm-accent)]" />
+              <span className="text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest">Items ({order.items.length})</span>
             </div>
             <div className="space-y-3">
               {order.items.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 pb-3 border-b border-[#232F49] last:border-0 last:pb-0">
-                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#121A2E] border border-[#232F49] flex-shrink-0">
+                <div key={i} className="flex items-center gap-3 pb-3 border-b border-[var(--adm-border)] last:border-0 last:pb-0">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden bg-[var(--adm-card)] border border-[var(--adm-border)] flex-shrink-0">
                     <img
-                      src={typeof item.productId === "string" ? undefined : item.productId?.image}
+                      src={getImageUrl(typeof item.productId === "string" ? undefined : item.productId?.image)}
                       alt={productName(item)}
                       className="w-full h-full object-cover"
-                      onError={(e) => { e.currentTarget.src = "https://placehold.co/40x40/121A2E/8592AC?text=?"; }}
+                      onError={onImageError}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#EDF1F7] truncate">{productName(item)}</p>
-                    <p className="text-xs text-[#8592AC]">Qty: {item.quantity} × Rs. {item.price?.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-[var(--adm-heading)] truncate">{productName(item)}</p>
+                    <p className="text-xs text-[var(--adm-muted)]">Qty: {item.quantity} × Rs. {item.price?.toLocaleString()}</p>
                   </div>
-                  <p className="text-sm font-mono font-bold text-[#FFB238] flex-shrink-0">Rs. {item.subtotal?.toLocaleString()}</p>
+                  <p className="text-sm font-mono font-bold text-[var(--adm-money)] flex-shrink-0">Rs. {item.subtotal?.toLocaleString()}</p>
                 </div>
               ))}
             </div>
 
-            <div className="flex justify-between items-center pt-3 mt-1 border-t border-[#232F49]">
-              <span className="text-sm font-bold text-[#EDF1F7]">Total</span>
-              <span className="text-base font-mono font-bold text-[#FFB238]">Rs. {order.totalPrice?.toLocaleString()}</span>
+            {(order.discount ?? 0) > 0 && (
+              <div className="flex justify-between items-center pt-3">
+                <span className="text-sm text-[var(--adm-muted)]">Combo savings</span>
+                <span className="text-sm font-mono text-emerald-500">− Rs. {order.discount!.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center pt-3 mt-1 border-t border-[var(--adm-border)]">
+              <span className="text-sm font-bold text-[var(--adm-heading)]">Total</span>
+              <span className="text-base font-mono font-bold text-[var(--adm-money)]">Rs. {order.totalPrice?.toLocaleString()}</span>
             </div>
           </div>
 
-          <button onClick={onClose} className="w-full py-2.5 text-sm font-medium text-[#8592AC] hover:text-[#EDF1F7] bg-[#182238] hover:bg-[#1E2A42] rounded-xl transition-all">
+          <button onClick={onClose} className="w-full py-2.5 text-sm font-medium text-[var(--adm-muted)] hover:text-[var(--adm-heading)] bg-[var(--adm-chip)] hover:bg-[var(--adm-chip-hover)] rounded-xl transition-all">
             Close
           </button>
         </div>
@@ -286,27 +293,14 @@ const ManageOrders = () => {
   }, {} as Record<OrderStatus, number>);
 
   return (
-    <div className="relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7]">
-      <div
-        className="fixed inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }}
-      />
+    <div className="min-h-screen bg-[var(--adm-bg)] text-[var(--adm-heading)]">
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div className="mb-8">
-          <p className="text-[10px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1.5">// Admin Panel</p>
-          <h1 className="text-2xl md:text-3xl font-display font-semibold text-[#EDF1F7]">Manage Orders</h1>
-          <p className="text-sm text-[#8592AC] font-body mt-1">View and update customer order statuses.</p>
-        </div>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex flex-wrap gap-2 mb-6">
           <button
             onClick={() => setFilterStatus("all")}
             className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wide border transition-all
-              ${filterStatus === "all" ? "bg-[#5B8DEF] border-[#5B8DEF] text-[#0A0E1A]" : "bg-[#121A2E] border-[#232F49] text-[#8592AC] hover:text-[#EDF1F7]"}`}
+              ${filterStatus === "all" ? "bg-[var(--adm-accent)] border-[var(--adm-accent)] text-[var(--adm-accent-contrast)]" : "bg-[var(--adm-card)] border-[var(--adm-border)] text-[var(--adm-muted)] hover:text-[var(--adm-heading)]"}`}
           >
             All ({orders.length})
           </button>
@@ -315,7 +309,7 @@ const ManageOrders = () => {
               key={val}
               onClick={() => setFilterStatus(val as OrderStatus)}
               className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wide border transition-all
-                ${filterStatus === val ? `${color} bg-[#182238] border-[#5C6270]` : "bg-[#121A2E] border-[#232F49] text-[#8592AC] hover:text-[#EDF1F7]"}`}
+                ${filterStatus === val ? `${color} bg-[var(--adm-card)] border-current` : "bg-[var(--adm-card)] border-[var(--adm-border)] text-[var(--adm-muted)] hover:text-[var(--adm-heading)]"}`}
             >
               {label} ({counts[val as OrderStatus] || 0})
             </button>
@@ -324,52 +318,55 @@ const ManageOrders = () => {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
-            <div className="w-12 h-12 rounded-full border-4 border-[#232F49] border-t-[#5B8DEF] animate-spin" />
-            <p className="text-[#8592AC] text-sm font-mono">Loading orders...</p>
+            <div className="w-12 h-12 rounded-full border-4 border-[var(--adm-border)] border-t-[var(--adm-accent)] animate-spin" />
+            <p className="text-[var(--adm-muted)] text-sm font-mono">Loading orders...</p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-[#232F49] overflow-hidden">
-            <div className="bg-[#121A2E] px-5 py-3 border-b border-[#232F49]">
-              <p className="text-xs font-mono text-[#8592AC]">
-                Showing <span className="text-[#EDF1F7] font-semibold">{filtered.length}</span> of{" "}
-                <span className="text-[#EDF1F7] font-semibold">{orders.length}</span> orders
+          <div className="rounded-2xl border border-[var(--adm-border)] overflow-hidden">
+            <div className="bg-[var(--adm-card)] px-5 py-3 border-b border-[var(--adm-border)]">
+              <p className="text-xs font-mono text-[var(--adm-muted)]">
+                Showing <span className="text-[var(--adm-heading)] font-semibold">{filtered.length}</span> of{" "}
+                <span className="text-[var(--adm-heading)] font-semibold">{orders.length}</span> orders
               </p>
             </div>
 
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-[#121A2E]/70">
+                <thead className="bg-[var(--adm-subtle)]">
                   <tr>
                     {["Order ID", "Customer", "Items", "Total", "Payment", "Status", "Date", ""].map((col) => (
-                      <th key={col} className="px-5 py-3.5 text-left text-[10px] font-mono font-bold text-[#5C6270] uppercase tracking-widest whitespace-nowrap">
+                      <th key={col} className="px-5 py-3.5 text-left text-[10px] font-mono font-bold text-[var(--adm-muted)] uppercase tracking-widest whitespace-nowrap">
                         {col}
                       </th>
                     ))}
                   </tr>
                 </thead>
 
-                <tbody className="bg-[#0A0E1A] divide-y divide-[#232F49]">
+                <tbody className="bg-[var(--adm-card)] divide-y divide-[var(--adm-border)]">
                   {filtered.length > 0 ? (
                     filtered.map((order) => (
-                      <tr key={order._id} className="hover:bg-[#121A2E]/50 transition-colors group">
+                      <tr key={order._id} className="hover:bg-[var(--adm-subtle)] transition-colors group">
                         <td className="px-5 py-4">
-                          <span className="text-xs font-mono text-[#8592AC]">#{order._id.slice(-8).toUpperCase()}</span>
+                          <span className="text-xs font-mono text-[var(--adm-muted)]">#{order._id.slice(-8).toUpperCase()}</span>
                         </td>
 
                         <td className="px-5 py-4">
-                          <p className="text-sm font-semibold text-[#EDF1F7] whitespace-nowrap">{typeof order.userId === "string" ? "Unknown" : (order.userId?.name || "Unknown")}</p>
-                          <p className="text-xs text-[#8592AC] truncate max-w-[120px]">{typeof order.userId === "string" ? "" : (order.userId?.email || "")}</p>
+                          <p className="text-sm font-semibold text-[var(--adm-heading)] whitespace-nowrap">{typeof order.userId === "string" ? "Unknown" : (order.userId?.name || "Unknown")}</p>
+                          <p className="text-xs text-[var(--adm-muted)] truncate max-w-[120px]">{typeof order.userId === "string" ? "" : (order.userId?.email || "")}</p>
                         </td>
 
                         <td className="px-5 py-4 max-w-[180px]">
-                          <p className="text-sm text-[#8592AC] truncate">
+                          <p className="text-sm text-[var(--adm-muted)] truncate">
                             {order.items.map(productName).join(", ")}
                           </p>
-                          <p className="text-xs text-[#5C6270]">{order.items.length} item{order.items.length !== 1 ? "s" : ""}</p>
+                          <p className="text-xs text-[var(--adm-dim)]">{order.items.length} item{order.items.length !== 1 ? "s" : ""}</p>
                         </td>
 
                         <td className="px-5 py-4">
-                          <span className="text-sm font-mono font-bold text-[#FFB238] whitespace-nowrap">Rs. {order.totalPrice?.toLocaleString()}</span>
+                          <span className="text-sm font-mono font-bold text-[var(--adm-money)] whitespace-nowrap">Rs. {order.totalPrice?.toLocaleString()}</span>
+                          {(order.discount ?? 0) > 0 && (
+                            <p className="text-[11px] font-mono text-emerald-500 whitespace-nowrap">− Rs. {order.discount!.toLocaleString()} off</p>
+                          )}
                         </td>
 
                         <td className="px-5 py-4">
@@ -381,7 +378,7 @@ const ManageOrders = () => {
                         </td>
 
                         <td className="px-5 py-4 whitespace-nowrap">
-                          <span className="text-xs text-[#5C6270] font-mono">
+                          <span className="text-xs text-[var(--adm-dim)] font-mono">
                             {new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                           </span>
                         </td>
@@ -389,7 +386,7 @@ const ManageOrders = () => {
                         <td className="px-5 py-4">
                           <button
                             onClick={() => setSelectedOrder(order)}
-                            className="opacity-0 group-hover:opacity-100 text-[10px] font-mono uppercase tracking-wide font-semibold text-[#5B8DEF] hover:text-[#0A0E1A] bg-[#5B8DEF]/0 hover:bg-[#5B8DEF] px-3 py-1.5 rounded-lg border border-[#5B8DEF]/30 hover:border-[#5B8DEF] transition-all duration-150 whitespace-nowrap"
+                            className="opacity-0 group-hover:opacity-100 text-[10px] font-mono uppercase tracking-wide font-semibold text-[var(--adm-accent)] hover:text-[var(--adm-accent-contrast)] bg-transparent hover:bg-[var(--adm-accent)] px-3 py-1.5 rounded-lg border border-[var(--adm-accent-border)] hover:border-[var(--adm-accent)] transition-all duration-150 whitespace-nowrap"
                           >
                             View
                           </button>
@@ -400,10 +397,10 @@ const ManageOrders = () => {
                     <tr>
                       <td colSpan={8} className="px-5 py-20 text-center">
                         <div className="flex flex-col items-center gap-3">
-                          <div className="w-14 h-14 rounded-xl bg-[#121A2E] border border-[#232F49] flex items-center justify-center">
-                            <FiPackage className="w-6 h-6 text-[#5C6270]" />
+                          <div className="w-14 h-14 rounded-xl bg-[var(--adm-card)] border border-[var(--adm-border)] flex items-center justify-center">
+                            <FiPackage className="w-6 h-6 text-[var(--adm-dim)]" />
                           </div>
-                          <p className="text-[#8592AC] text-sm">No orders found.</p>
+                          <p className="text-[var(--adm-muted)] text-sm">No orders found.</p>
                         </div>
                       </td>
                     </tr>

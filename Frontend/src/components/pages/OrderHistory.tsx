@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { UserContext } from '../context/UserContext'
 import { StatusBadge } from './ManageOrders'
-import { getImageUrl } from '../../utils/imageUtils'
+import { getImageUrl, onImageError } from '../../utils/imageUtils'
 import { FiPackage, FiMapPin, FiClock, FiCreditCard, FiChevronDown } from 'react-icons/fi'
 import type { Order, OrderItem, OrderStatus, PaymentMethod } from '../../types'
 
@@ -55,9 +55,16 @@ const OrderCard = ({ order }: { order: Order }) => {
 
         <div className="flex items-center gap-3">
           <StatusBadge status={order.orderStatus} />
-          <span className="text-sm font-mono font-bold text-[#FFB238]">
-            Rs. {order.totalPrice?.toLocaleString()}
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="text-sm font-mono font-bold text-[#FFB238]">
+              Rs. {order.totalPrice?.toLocaleString()}
+            </span>
+            {(order.discount ?? 0) > 0 && (
+              <span className="text-[10px] font-mono text-emerald-400">
+                − Rs. {order.discount?.toLocaleString()} combo savings
+              </span>
+            )}
+          </div>
           <FiChevronDown className={`w-4 h-4 text-[#5C6270] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
         </div>
       </button>
@@ -99,9 +106,9 @@ const OrderCard = ({ order }: { order: Order }) => {
                   <div className="w-9 h-9 rounded-lg overflow-hidden bg-[#121A2E] border border-[#232F49] flex-shrink-0">
                     <img
                       src={getImageUrl(productImage(item))}
-                      alt={productName(item)}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.currentTarget.src = 'https://placehold.co/36x36/121A2E/8592AC?text=?' }}
+                       alt={productName(item)}
+                       className="w-full h-full object-cover"
+                       onError={onImageError}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -158,14 +165,6 @@ const OrderHistory = () => {
 
   return (
     <div className="relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7]">
-      <div
-        className="fixed inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }}
-      />
-
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-12">
 
         <div className="mb-8">

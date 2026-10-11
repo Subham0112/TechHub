@@ -5,12 +5,100 @@
 
 @theme {
   --breakpoint-xs: 30rem; /* 480px */
-  --font-display: "Space Grotesk", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-display: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-body: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-mono: "Times New Roman", Times, "Liberation Serif", serif;
 }
 html{
   scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Times New Roman", Times, "Liberation Serif", serif;
+}
+
+/* Admin panel theme tokens (content area only — sidebar stays dark) */
+:root {
+  --adm-bg: #F5F7FA;
+  --adm-card: #FFFFFF;
+  --adm-subtle: #F1F5F9;
+  --adm-chip: #EEF2F8;
+  --adm-chip-hover: #E2E8F0;
+  --adm-border: #E4E9F1;
+  --adm-heading: #0F172A;
+  --adm-muted: #64748B;
+  --adm-dim: #8A94A6;
+  --adm-placeholder: #94A3B8;
+  --adm-label: #334155;
+  --adm-icon: #CBD5E1;
+  --adm-accent: #2563EB;
+  --adm-accent-hover: #1D4ED8;
+  --adm-accent-contrast: #FFFFFF;
+  --adm-accent-soft: rgba(37, 99, 235, 0.10);
+  --adm-accent-border: rgba(37, 99, 235, 0.30);
+  --adm-accent-70: rgba(37, 99, 235, 0.70);
+  --adm-money: #B45309;
+  --adm-header: rgba(255, 255, 255, 0.95);
+  --st-amber: #D97706;
+  --st-amber-strong: #B45309;
+  --st-amber-soft: rgba(217, 115, 6, 0.10);
+  --st-amber-border: rgba(217, 115, 6, 0.30);
+  --st-emerald: #059669;
+  --st-emerald-strong: #047857;
+  --st-emerald-soft: rgba(5, 150, 105, 0.10);
+  --st-emerald-border: rgba(5, 150, 105, 0.30);
+  --st-rose: #E11D48;
+  --st-rose-strong: #BE123C;
+  --st-rose-soft: rgba(225, 29, 72, 0.10);
+  --st-rose-border: rgba(225, 29, 72, 0.30);
+  --st-orange: #EA580C;
+  --st-orange-soft: rgba(234, 88, 12, 0.10);
+  --st-orange-border: rgba(234, 88, 12, 0.30);
+  --st-violet: #7C3AED;
+  --st-violet-soft: rgba(124, 58, 237, 0.10);
+  --st-violet-border: rgba(124, 58, 237, 0.30);
+}
+
+.dark {
+  --adm-bg: #0A0E1A;
+  --adm-card: #121A2E;
+  --adm-subtle: #0D1322;
+  --adm-chip: #182238;
+  --adm-chip-hover: #1E2A42;
+  --adm-border: #232F49;
+  --adm-heading: #EDF1F7;
+  --adm-muted: #8592AC;
+  --adm-dim: #5C6270;
+  --adm-placeholder: #5C6270;
+  --adm-label: #CBD5E1;
+  --adm-icon: #2A3752;
+  --adm-accent: #5B8DEF;
+  --adm-accent-hover: #7BA3F5;
+  --adm-accent-contrast: #0A0E1A;
+  --adm-accent-soft: rgba(91, 141, 239, 0.12);
+  --adm-accent-border: rgba(91, 141, 239, 0.30);
+  --adm-accent-70: rgba(91, 141, 239, 0.70);
+  --adm-money: #FFB238;
+  --adm-header: rgba(10, 14, 26, 0.95);
+  --st-amber: #FBBF24;
+  --st-amber-strong: #F59E0B;
+  --st-amber-soft: rgba(251, 191, 36, 0.12);
+  --st-amber-border: rgba(251, 191, 36, 0.30);
+  --st-emerald: #34D399;
+  --st-emerald-strong: #10B981;
+  --st-emerald-soft: rgba(52, 211, 153, 0.12);
+  --st-emerald-border: rgba(52, 211, 153, 0.30);
+  --st-rose: #FB7185;
+  --st-rose-strong: #F43F5E;
+  --st-rose-soft: rgba(251, 113, 133, 0.12);
+  --st-rose-border: rgba(251, 113, 133, 0.30);
+  --st-orange: #FB923C;
+  --st-orange-soft: rgba(251, 146, 60, 0.12);
+  --st-orange-border: rgba(251, 146, 60, 0.30);
+  --st-violet: #A78BFA;
+  --st-violet-soft: rgba(167, 139, 250, 0.12);
+  --st-violet-border: rgba(167, 139, 250, 0.30);
 }
 
 @keyframes slide-up {

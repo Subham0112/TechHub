@@ -1,7 +1,9 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { CartContext } from '../context/CartContext'
+import { useOffers } from '../context/OffersContext'
+import { computeCartPricing } from '../../utils/pricing'
 import { getImageUrl } from '../../utils/imageUtils'
-import { FiShoppingCart, FiTrash2, FiMinus, FiPlus, FiArrowLeft } from 'react-icons/fi'
+import { FiShoppingCart, FiTrash2, FiMinus, FiPlus, FiArrowLeft, FiTag } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import CartToast from '../CartToast'
 import type { Product } from '../../types'
@@ -17,16 +19,31 @@ const Corners = ({ color = "border-[#5B8DEF]", visible = "opacity-100" }: { colo
 
 const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateAction<Product[]>> }) => {
   const cartContext = useContext(CartContext)
-  const cartItems = cartContext?.cartItems ?? []
+  const cartItems = useMemo(() => cartContext?.cartItems ?? [], [cartContext])
   const cartLoading = cartContext?.cartLoading ?? true
   const updateQuantity = cartContext?.updateQuantity ?? (async () => {})
   const removeFromCart = cartContext?.removeFromCart ?? (async () => {})
   const navigate = useNavigate()
+  const { offers } = useOffers()
 
-  const totalPrice = cartItems.reduce((sum, item) => {
-    const price = typeof item.productId === 'string' ? 0 : (item.productId?.price || 0)
-    return sum + price * item.quantity
-  }, 0)
+  const pricedItems = useMemo(
+    () =>
+      cartItems
+        .map((item) => ({
+          product: typeof item.productId === 'string' ? null : item.productId,
+          quantity: item.quantity,
+        }))
+        .filter((i): i is { product: Product; quantity: number } => i.product !== null),
+    [cartItems]
+  )
+
+  const pricing = useMemo(() => computeCartPricing(pricedItems, offers), [pricedItems, offers])
+  const lineByProduct = useMemo(
+    () => new Map(pricing.lines.map((l) => [l.product._id, l])),
+    [pricing]
+  )
+
+  const totalPrice = pricing.total
 
   const handleCheckoutClick = () => {
     setProducts(cartItems.map((item) => typeof item.productId === 'string' ? null : item.productId).filter((p): p is Product => p !== null))
@@ -46,13 +63,6 @@ const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateActio
   if (cartItems.length === 0) {
     return (
       <div className="relative min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center text-[#EDF1F7] px-4">
-        <div
-          className="fixed inset-0 opacity-[0.05] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
         <div className="relative text-center">
           <div className="w-24 h-24 bg-[#121A2E] border border-[#232F49] rounded-full flex items-center justify-center mx-auto mb-6">
             <FiShoppingCart className="w-10 h-10 text-[#5C6270]" />
@@ -74,15 +84,6 @@ const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateActio
   return (
     <>
       <div className="relative min-h-screen bg-[#0A0E1A] text-[#EDF1F7] px-4 py-10">
-
-        {/* Global blueprint grid */}
-        <div
-          className="fixed inset-0 opacity-[0.05] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(#5B8DEF 1px, transparent 1px), linear-gradient(90deg, #5B8DEF 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-          }}
-        />
 
         <div className="relative max-w-5xl mx-auto">
 
@@ -118,7 +119,7 @@ const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateActio
                     {/* Product Image */}
                     <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-[#0A0E1A] flex-shrink-0 border border-[#232F49]">
                       <img
-                        src={getImageUrl(product.image) || "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&q=80"}
+                        src={getImageUrl(product.image)}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
@@ -156,9 +157,25 @@ const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateActio
 
                         {/* Price + Delete */}
                         <div className="flex items-center gap-3">
-                          <span className="font-mono font-bold text-[#FFB238]">
-                            Rs. {(product.price * item.quantity).toLocaleString()}
-                          </span>
+                          <div className="flex flex-col items-end">
+                            <span className="font-mono font-bold text-[#FFB238]">
+                              Rs. {(() => {
+                                const line = lineByProduct.get(product._id)
+                                return ((line?.unitPrice ?? product.price) * item.quantity).toLocaleString()
+                              })()}
+                            </span>
+                            {(() => {
+                              const line = lineByProduct.get(product._id)
+                              if (line && line.unitPrice < product.price) {
+                                return (
+                                  <span className="text-[10px] font-mono text-[#8592AC] line-through">
+                                    Rs. {(product.price * item.quantity).toLocaleString()}
+                                  </span>
+                                )
+                              }
+                              return null
+                            })()}
+                          </div>
                           <button
                             onClick={() => removeFromCart(product._id)}
                             className="p-1.5 text-[#5C6270] hover:text-rose-400 hover:bg-rose-400/10 rounded-lg transition-colors"
@@ -181,30 +198,48 @@ const Cart = ({ setProducts }: { setProducts: React.Dispatch<React.SetStateActio
                 <h2 className="text-lg font-display font-semibold text-[#EDF1F7] mb-5">Order Summary</h2>
 
                 <div className="space-y-3 mb-5">
-                  {cartItems.map((item) => {
-                    const name = typeof item.productId === 'string' ? 'Product' : item.productId?.name
-                    const price = typeof item.productId === 'string' ? 0 : (item.productId?.price || 0)
-                    return (
-                      <div key={item._id} className="flex justify-between text-sm">
-                        <span className="text-[#8592AC] truncate max-w-[160px] font-body">
-                          {name}
-                          <span className="text-[#5C6270] ml-1">×{item.quantity}</span>
-                        </span>
-                        <span className="text-[#EDF1F7] flex-shrink-0 font-mono">
-                          Rs. {(price * item.quantity).toLocaleString()}
-                        </span>
-                      </div>
-                    )
-                  })}
+                  {pricing.lines.map((line) => (
+                    <div key={line.product._id} className="flex justify-between text-sm">
+                      <span className="text-[#8592AC] truncate max-w-[160px] font-body">
+                        {line.product.name}
+                        <span className="text-[#5C6270] ml-1">×{line.quantity}</span>
+                      </span>
+                      <span className="text-[#EDF1F7] flex-shrink-0 font-mono">
+                        Rs. {line.subtotal.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="border-t border-[#232F49] pt-4 mb-6">
+                {pricing.discount > 0 && (
+                  <div className="space-y-2 mb-4 pb-4 border-b border-[#232F49]">
+                    {pricing.appliedCombos.map((combo) => (
+                      <div key={combo.offerId} className="flex justify-between text-sm">
+                        <span className="text-emerald-400 flex items-center gap-1.5 font-body truncate max-w-[190px]">
+                          <FiTag className="w-3.5 h-3.5 flex-shrink-0" />
+                          {combo.title}
+                          {combo.units > 1 && <span className="text-[#5C6270]">×{combo.units}</span>}
+                        </span>
+                        <span className="text-emerald-400 font-mono flex-shrink-0">
+                          − Rs. {combo.savings.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className={`${pricing.discount > 0 ? '' : 'border-t border-[#232F49] pt-4'} mb-6`}>
                   <div className="flex justify-between items-center">
                     <span className="font-semibold text-[#EDF1F7] text-sm">Total</span>
                     <span className="font-mono font-bold text-lg text-[#FFB238]">
                       Rs. {totalPrice.toLocaleString()}
                     </span>
                   </div>
+                  {pricing.discount > 0 && (
+                    <p className="text-[11px] font-mono text-emerald-400 text-right mt-1">
+                      You save Rs. {pricing.discount.toLocaleString()} with combos
+                    </p>
+                  )}
                 </div>
 
                 <button

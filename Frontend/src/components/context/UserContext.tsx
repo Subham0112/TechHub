@@ -21,7 +21,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  axios.defaults.withCredentials = true;
 
   useEffect(() => {
     const getCurrentUser = async () => {

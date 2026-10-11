@@ -20,9 +20,15 @@ import AdminRoute from './components/Auth/AdminRoute'
 import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './components/admin/AdminDashboard'
 import AdminCustomers from './components/admin/AdminCustomers'
+import AdminOffers from './components/admin/AdminOffers'
+import AdminReviews from './components/admin/AdminReviews'
+import AdminMessages from './components/admin/AdminMessages'
+import AdminCategories from './components/admin/AdminCategories'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import TrackOrder from './components/pages/TrackOrder'
 import ProductDetailPage from './components/pages/ProductDetail'
+import OffersPage from './components/pages/OffersPage'
+import ContactPage from './components/pages/ContactPage'
 import type { Product, AlertData } from './types'
 
 const App = () => {
@@ -48,6 +54,8 @@ const App = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/products/category/:category" element={<ProductCategoryPage />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/offers" element={<OffersPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/products/:slugId" element={<ProductDetailPage />} />
         <Route path="/cart" element={
           <ProtectedRoute>
@@ -84,8 +92,12 @@ const App = () => {
         }>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<ProductManage handleAlert={handleAlert} />} />
+          <Route path="categories" element={<AdminCategories handleAlert={handleAlert} />} />
           <Route path="orders" element={<ManageOrders />} />
           <Route path="customers" element={<AdminCustomers />} />
+          <Route path="offers" element={<AdminOffers handleAlert={handleAlert} />} />
+          <Route path="reviews" element={<AdminReviews handleAlert={handleAlert} />} />
+          <Route path="messages" element={<AdminMessages handleAlert={handleAlert} />} />
         </Route>
       </Routes>
       {!isAdminArea && <Footer />}
