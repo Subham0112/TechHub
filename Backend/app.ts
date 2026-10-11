@@ -5,6 +5,10 @@ import ProductRoutes from "./src/routes/products.route";
 import CartRoutes from "./src/routes/cart.route";
 import OrderRoutes from "./src/routes/order.route";
 import AdminRoutes from "./src/routes/admin.route";
+import OfferRoutes from "./src/routes/offers.route";
+import ReviewRoutes from "./src/routes/reviews.route";
+import ContactRoutes from "./src/routes/contact.route";
+import CategoryRoutes from "./src/routes/categories.route";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { uploadDir } from "./src/middlewares/multer";
@@ -30,6 +34,10 @@ app.use("/api/products", ProductRoutes);
 app.use("/api/cart", CartRoutes);
 app.use("/api/orders", OrderRoutes);
 app.use("/api/admin", AdminRoutes);
+app.use("/api/offers", OfferRoutes);
+app.use("/api/reviews", ReviewRoutes);
+app.use("/api/contact", ContactRoutes);
+app.use("/api/categories", CategoryRoutes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError || err.message?.includes("Only image files")) {

@@ -5,8 +5,37 @@ import path from "path";
 import fs from "fs";
 import { prisma } from "../config/prisma";
 import type { Order, OrderItem, Product, User } from "../../generated/prisma/client";
+import {
+  computeCartPricing,
+  getPricingMaps,
+} from "../services/offer.service";
+import { getRatingMap } from "../services/review.service";
 
 export const productToClient = (p: Product) => ({ ...p, _id: String(p.id) });
+
+export const enrichProducts = async (products: Product[]) => {
+  if (!products.length) return [];
+  const [maps, ratings] = await Promise.all([
+    getPricingMaps(),
+    getRatingMap(products.map((p) => p.id)),
+  ]);
+
+  return products.map((p) => {
+    const individual = maps.individual.get(p.id);
+    const summary = ratings.get(p.id) ?? { rating: 0, reviewCount: 0 };
+    return {
+      ...productToClient(p),
+      offerId: individual ? individual.offerId : null,
+      offerTitle: individual ? individual.title : null,
+      offerLabel: individual ? individual.offerLabel : null,
+      offerPrice: individual ? individual.offerPrice : null,
+      ...summary,
+    };
+  });
+};
+
+export const enrichProduct = async (product: Product) =>
+  (await enrichProducts([product]))[0];
 
 export const orderToClient = (o: Order & { user?: Pick<User, "id" | "name" | "email"> | null; items?: (OrderItem & { product?: Pick<Product, "id" | "name" | "image"> | null })[] }) => {
   const { user, items, ...rest } = o;
@@ -42,7 +71,7 @@ const getAllProducts = async (req: Request, res: Response) => {
     }
 
     const products = await prisma.product.findMany({ where });
-    res.status(200).json(products.map(productToClient));
+    res.status(200).json(await enrichProducts(products));
   } catch (error) {
     console.error("Error getting products:", error);
     res.status(500).json({ message: "Server error, please try again later" });
@@ -77,7 +106,7 @@ const createProduct = async (req: Request, res: Response) => {
         stock: Number(stock),
       },
     });
-    res.status(201).json(productToClient(product));
+    res.status(201).json(await enrichProduct(product));
   } catch (error) {
     console.error("Error creating product:", error);
     res.status(500).json({ message: "Server error, please try again later" });
@@ -129,7 +158,7 @@ const getProductById = async (req: Request, res: Response) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res.status(200).json(productToClient(product));
+    res.status(200).json(await enrichProduct(product));
   } catch (error) {
     console.error("Error getting product by ID:", error);
     res.status(500).json({ message: "Server error, please try again later" });
@@ -143,7 +172,7 @@ const getProductsByCategory = async (req: Request, res: Response) => {
     if (!products || products.length === 0) {
       return res.status(404).json({ message: "No products found in this category" });
     }
-    res.status(200).json(products.map(productToClient));
+    res.status(200).json(await enrichProducts(products));
   } catch (error) {
     console.log("Error getting products by category:", error);
     res.status(500).json({ message: "Server error, please try again later" });
@@ -198,7 +227,7 @@ const updateProduct = async (req: Request, res: Response) => {
         stock: Number(stock),
       },
     });
-    res.status(200).json(productToClient(product));
+    res.status(200).json(await enrichProduct(product));
   } catch (error) {
     console.error("Error updating product:", error);
     res.status(500).json({ message: "Server error, please try again later" });
@@ -230,9 +259,8 @@ const NON_CANCELLABLE_MESSAGE =
 
 const createOrder = async (req: Request, res: Response) => {
   try {
-    const { items, totalPrice, shippingAddress, paymentMethod } = req.body as {
-      items: { productId: string; quantity: number; price: number; subtotal: number }[];
-      totalPrice: number;
+    const { items, shippingAddress, paymentMethod } = req.body as {
+      items: { productId: string; quantity: number }[];
       shippingAddress: string;
       paymentMethod: "esewa" | "khalti" | "cod";
     };
@@ -243,25 +271,31 @@ const createOrder = async (req: Request, res: Response) => {
     if (!paymentMethod) {
       return res.status(400).json({ message: "Payment method is required" });
     }
+    if (!shippingAddress || !String(shippingAddress).trim()) {
+      return res.status(400).json({ message: "Shipping address is required" });
+    }
 
-    const normalizedItems = items.map((item) => ({
-      productId: Number(item.productId),
-      quantity: Number(item.quantity),
-      price: Number(item.price),
-      subtotal: Number(item.subtotal),
+    const merged = new Map<number, number>();
+    for (const item of items) {
+      const productId = Number(item.productId);
+      const quantity = Number(item.quantity);
+      if (!Number.isInteger(productId) || productId <= 0) {
+        return res.status(400).json({ message: "Invalid order items" });
+      }
+      if (!Number.isInteger(quantity) || quantity <= 0) {
+        return res.status(400).json({ message: "Invalid order items" });
+      }
+      merged.set(productId, (merged.get(productId) ?? 0) + quantity);
+    }
+
+    const normalizedItems = [...merged.entries()].map(([productId, quantity]) => ({
+      productId,
+      quantity,
     }));
 
-    if (
-      normalizedItems.some(
-        (i) =>
-          !Number.isInteger(i.productId) ||
-          i.productId <= 0 ||
-          !Number.isInteger(i.quantity) ||
-          i.quantity <= 0
-      )
-    ) {
-      return res.status(400).json({ message: "Invalid order items" });
-    }
+    const pricingMaps = await getPricingMaps();
+    const pricing = computeCartPricing(normalizedItems, pricingMaps);
+    const itemByProductId = new Map(pricing.lines.map((l) => [l.productId, l]));
 
     let order;
     try {
@@ -282,7 +316,7 @@ const createOrder = async (req: Request, res: Response) => {
           }
         }
 
-        // Atomically decrement stock (guards against overselling under concurrency).
+        
         for (const item of normalizedItems) {
           const result = await tx.product.updateMany({
             where: { id: item.productId, stock: { gte: item.quantity } },
@@ -296,10 +330,21 @@ const createOrder = async (req: Request, res: Response) => {
         return tx.order.create({
           data: {
             userId: req.user?.id as number,
-            totalPrice,
+            totalPrice: pricing.total,
+            discount: pricing.discount,
             shippingAddress,
             paymentMethod,
-            items: { create: normalizedItems },
+            items: {
+              create: normalizedItems.map((item) => {
+                const line = itemByProductId.get(item.productId);
+                return {
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  price: line?.unitPrice ?? 0,
+                  subtotal: line?.subtotal ?? 0,
+                };
+              }),
+            },
           },
           include: {
             items: {

@@ -6,6 +6,7 @@ import {
   adminLogin,
   getUserProfile,
   updateProfile,
+  refreshAccessToken,
   logoutUser,
 } from "../controllers/users.controller";
 import authMiddleware from "../middlewares/auth.middleware";
@@ -37,6 +38,8 @@ router.route("/admin-login").post(
   ],
   adminLogin
 );
+
+router.route("/refresh").post(refreshAccessToken);
 
 router.route("/profile").get(authMiddleware, getUserProfile);
 router.route("/profile").put(authMiddleware, updateProfile);

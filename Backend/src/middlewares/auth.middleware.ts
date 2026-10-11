@@ -14,7 +14,7 @@ const authMiddleware = async (
   next: NextFunction
 ): Promise<void> => {
   const token =
-    req.cookies?.token ||
+    req.cookies?.accesstoken ||
     (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")
       ? req.headers.authorization.split(" ")[1]
       : null);
@@ -25,7 +25,7 @@ const authMiddleware = async (
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string) as JwtPayload;
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string) as JwtPayload;
     const user = await prisma.user.findUnique({
       where: { id: Number(decoded.userId) },
       select: {

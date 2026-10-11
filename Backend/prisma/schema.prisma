@@ -17,12 +17,14 @@ model User {
   profilePic String?
   address    String
   role       String   @default("user")
-
+  refreshtoken String?
+  token_version Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cart   Cart?
-  orders Order[]
+  cart    Cart?
+  orders  Order[]
+  reviews Review[]
 }
 
 model Product {
@@ -39,8 +41,10 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cartItems  CartItem[]
-  orderItems OrderItem[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  offerProducts  OfferProduct[]
+  reviews        Review[]
 }
 
 model Cart {
@@ -72,6 +76,7 @@ model Order {
   user            User        @relation(fields: [userId], references: [id])
   items           OrderItem[]
   totalPrice      Float
+  discount        Float      @default(0)
   shippingAddress String
   orderStatus     String      @default("pending")
   paymentMethod   String
@@ -93,4 +98,69 @@ model OrderItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Offer {
+  id            Int           @id @default(autoincrement())
+  title         String
+  description   String?
+  type          String        @default("percentage")
+  discountValue Float         @default(0)
+  comboPrice    Float?
+  appliesTo     String        @default("products")
+  category      String?
+  startsAt      DateTime?
+  endsAt        DateTime?
+  isActive      Boolean       @default(true)
+
+  products OfferProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OfferProduct {
+  id        Int     @id @default(autoincrement())
+  offerId   Int
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, productId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String
+  status    String   @default("pending")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId])
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  slug      String   @unique
+
+  createdAt DateTime @default(now())
 }

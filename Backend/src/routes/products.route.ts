@@ -12,8 +12,19 @@ import {
 import upload from "../middlewares/multer";
 import adminAuthMiddleware from "../middlewares/adminAuth.middleware";
 import { body } from "express-validator";
+import { prisma } from "../config/prisma";
 
 const router: Router = express.Router();
+
+const isKnownCategory = async (value: unknown) => {
+  const category = await prisma.category.findUnique({
+    where: { slug: String(value) },
+  });
+  if (!category) {
+    throw new Error("Invalid or unknown category");
+  }
+  return true;
+};
 
 router
   .route("/")
@@ -25,7 +36,7 @@ router
       body("name").isLength({ min: 3 }).withMessage("Name must be at least 3 characters long"),
       body("price").isNumeric().withMessage("Price must be a number"),
       body("description").isLength({ min: 10 }).withMessage("Description must be at least 10 characters long"),
-      body("category").isIn(["mobile-accessories", "gadgets"]).withMessage("Invalid category"),
+      body("category").custom(isKnownCategory).withMessage("Invalid or unknown category"),
       body("stock").isInt({ min: 0 }).withMessage("Stock must be a non-negative integer"),
     ],
     createProduct
@@ -42,7 +53,7 @@ router
       body("name").isLength({ min: 3 }).withMessage("Name must be at least 3 characters long"),
       body("price").isNumeric().withMessage("Price must be a number"),
       body("description").isLength({ min: 10 }).withMessage("Description must be at least 10 characters long"),
-      body("category").isIn(["mobile-accessories", "gadgets"]).withMessage("Invalid category"),
+      body("category").custom(isKnownCategory).withMessage("Invalid or unknown category"),
       body("stock").isInt({ min: 0 }).withMessage("Stock must be a non-negative integer"),
     ],
     updateProduct
