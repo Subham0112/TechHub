@@ -35,12 +35,13 @@ const ManageProducts = ({ handleAlert }: { handleAlert: (alert: AlertData) => vo
 
   const handleDeleteClick = async (product: Product) => {
     try {
-      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/products/${product._id}`, { withCredentials: true })
-      const updatedProducts = res.data ? res.data as Product[] : products.filter(p => p._id !== product._id && p.id !== product.id)
-      setProducts(updatedProducts)
+      const id = product._id || product.id
+      await axios.delete(`${import.meta.env.VITE_API_URL}/products/${id}`, { withCredentials: true })
+      setProducts(prev => prev.filter(p => (p._id || p.id) !== id))
       handleAlert({ type: 'success', title: 'Product deleted', description: 'Your product has been deleted successfully' })
-    } catch (error) {
+    } catch (error: any) {
       console.log('Product delete error:', error)
+      handleAlert({ type : 'danger', title: 'Delete failed', description: error.response?.data?.message || 'Failed to delete product' })
     }
   }
 
