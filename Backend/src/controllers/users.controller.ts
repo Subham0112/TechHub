@@ -22,19 +22,21 @@ const tokensMatch = (a: string, b: string) => {
   return timingSafeEqual(aBuffer, bBuffer);
 };
 
+const isProd = process.env.NODE_ENV === "production";
+
 const setAccessCookie = (res: Response, token: string) =>
   res.cookie("accesstoken", token, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: ACCESS_TOKEN_MAX_AGE,
   });
 
 const setRefreshCookie = (res: Response, token: string, isAdmin: boolean) =>
   res.cookie("refreshtoken", token, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: isAdmin ? ADMIN_REFRESH_TOKEN_MAX_AGE : USER_REFRESH_TOKEN_MAX_AGE,
   });
 
@@ -279,8 +281,17 @@ const logoutUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error revoking refresh token:", error);
   }
-  res.clearCookie("accesstoken");
-  res.clearCookie("refreshtoken");
+  const isProd = process.env.NODE_ENV === "production";
+  res.clearCookie("accesstoken", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  });
+  res.clearCookie("refreshtoken", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+  });
   res.status(200).json({ message: "User logged out successfully" });
 };
 
