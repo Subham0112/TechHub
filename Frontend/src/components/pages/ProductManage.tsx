@@ -223,7 +223,7 @@ const ManageProducts = ({ handleAlert }: { handleAlert: (alert: AlertData) => vo
                           </td>
 
                           <td className='px-4 py-4'>
-                            <div className='flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150'>
+                            <div className='flex items-center gap-2'>
                               <button
                                 onClick={() => handleEditClick(product)}
                                 className='p-1.5 rounded-lg bg-[var(--adm-chip)] hover:bg-[var(--adm-accent)] text-[var(--adm-muted)] hover:text-[var(--adm-accent-contrast)] transition-all duration-150 cursor-pointer'
