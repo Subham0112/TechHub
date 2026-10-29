@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
 import { useOffers } from '../context/OffersContext'
 import { computeCartPricing } from '../../utils/pricing'
+import { getImageUrl } from '../../utils/imageUtils'
 import { FiArrowLeft, FiMapPin, FiPackage, FiCheckCircle, FiShoppingBag, FiSmartphone, FiCreditCard, FiTruck, FiTag } from 'react-icons/fi'
 import type { IconType } from 'react-icons'
 import type { Product } from '../../types'
@@ -368,10 +369,12 @@ const CheckoutPage = ({ products: _products }: { products: Product[] }) => {
                       <div key={i} className='flex items-center gap-3 py-3 border-b border-slate-700/50 last:border-0'>
                         <div className='w-14 h-14 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 border border-slate-700'>
                           <img
-                            src={item.image}
+                            src={getImageUrl(item.image)}
                             alt={item.name}
                             className='w-full h-full object-cover'
-                            onError={e => { e.currentTarget.src = 'https://placehold.co/56x56/1e293b/94a3b8?text=?' }}
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=400&auto=format&fit=crop'
+                            }}
                           />
                         </div>
                         <div className='flex-1 min-w-0'>
@@ -427,7 +430,7 @@ const CheckoutPage = ({ products: _products }: { products: Product[] }) => {
                   <div key={i} className='flex items-center gap-3'>
                     <div className='relative flex-shrink-0'>
                       <div className='w-10 h-10 rounded-lg overflow-hidden bg-slate-900 border border-slate-700'>
-                        <img src={item.image} alt={item.name} className='w-full h-full object-cover'
+                        <img src={getImageUrl(item.image)} alt={item.name} className='w-full h-full object-cover'
                           onError={e => { e.currentTarget.src = 'https://placehold.co/40x40/1e293b/94a3b8?text=?' }} />
                       </div>
                       <span className='absolute -top-1.5 -right-1.5 w-4 h-4 bg-indigo-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center'>

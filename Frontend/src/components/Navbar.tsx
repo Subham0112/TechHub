@@ -195,7 +195,7 @@ const Navbar = () => {
     <>
       <nav className="bg-[#0A0E1A]/95 backdrop-blur-md border-b border-[#232F49] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-5">
-          <div className="flex items-center justify-between h-16 relative">
+          <div className="flex items-center justify-between h-14 sm:h-16 relative px-1 sm:px-0">
             {/* Logo */}
             <a
               href="/"

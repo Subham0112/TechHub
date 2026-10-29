@@ -52,9 +52,9 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
   const productHref = `/products/${product.slug}-${product._id}`
 
   return (
-    <div className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[250px] flex flex-col">
+    <div className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[220px] sm:w-[250px] flex flex-col snap-start">
 
-      <div className="relative h-[180px] overflow-hidden bg-[#0A0E1A] flex-shrink-0">
+      <div className="relative h-[150px] sm:h-[180px] overflow-hidden bg-[#0A0E1A] flex-shrink-0">
         <img
           src={getImageUrl(product.image)}
           alt={product.name}
@@ -89,7 +89,7 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
         )}
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-3 sm:p-4 flex flex-col flex-1">
         <span className="text-[10px] font-mono text-[#8592AC] uppercase tracking-widest">{product.type || product.category}</span>
         <h3
           onClick={() => navigate(productHref)}
@@ -211,7 +211,7 @@ const ProductSection = React.memo<{
           <p className="text-[#8592AC] font-body text-sm">No products available yet.</p>
         </div>
       ) : (
-        <div ref={containerRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-4" onScroll={checkScroll}>
+        <div ref={containerRef} className="flex gap-3 sm:gap-5 overflow-x-auto scrollbar-hide pb-3 sm:pb-4" onScroll={checkScroll}>
           {products.map((product) => (
             <ProductCard
               key={product._id}
@@ -238,15 +238,15 @@ const TrustBar = () => {
   return (
     <section className="border-b border-[#232F49]">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#232F49]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#232F49]">
           {items.map((item, idx) => (
-            <div key={idx} className="bg-[#0A0E1A] px-5 py-6 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-[#121A2E] border border-[#232F49] flex items-center justify-center flex-shrink-0">
-                <item.icon className="w-5 h-5 text-[#5B8DEF]" />
+            <div key={idx} className="bg-[#0A0E1A] px-4 sm:px-5 py-4 sm:py-6 flex items-center gap-3 sm:gap-4">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#121A2E] border border-[#232F49] flex items-center justify-center flex-shrink-0">
+                <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#5B8DEF]" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#EDF1F7]">{item.title}</p>
-                <p className="text-xs text-[#8592AC] truncate">{item.subtitle}</p>
+                <p className="text-xs sm:text-sm font-semibold text-[#EDF1F7]">{item.title}</p>
+                <p className="text-[11px] sm:text-xs text-[#8592AC] truncate">{item.subtitle}</p>
               </div>
             </div>
           ))}
@@ -284,20 +284,20 @@ const CategoryTiles = () => {
   ]
 
   return (
-    <section className="mb-16">
-      <div className="flex items-end justify-between gap-4 mb-7">
+    <section className="mb-12 sm:mb-16">
+      <div className="flex items-end justify-between gap-4 mb-5 sm:mb-7">
         <div>
-          <p className="text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-2">Shop by category</p>
-          <h2 className="text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">Explore Our Collections</h2>
+          <p className="text-[10px] sm:text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1.5 sm:mb-2">Shop by category</p>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">Explore Our Collections</h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
         {tiles.map((tile) => (
           <button
             key={tile.label}
             onClick={() => navigate(tile.href)}
-            className="group relative h-56 rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 transition-colors duration-300 text-left cursor-pointer"
+            className="group relative h-48 sm:h-56 rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 transition-colors duration-300 text-left cursor-pointer"
           >
             <img
               src={tile.image}
@@ -305,12 +305,12 @@ const CategoryTiles = () => {
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/40 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-5">
-              <p className="text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1.5">
+            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+              <p className="text-[10px] sm:text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1 sm:mb-1.5">
                 {tile.eyebrow}
               </p>
-              <p className="text-lg font-display font-semibold text-[#EDF1F7] mb-1">{tile.label}</p>
-              <p className="text-xs text-[#8592AC] mb-3">{tile.description}</p>
+              <p className="text-base sm:text-lg font-display font-semibold text-[#EDF1F7] mb-0.5 sm:mb-1">{tile.label}</p>
+              <p className="text-[11px] sm:text-xs text-[#8592AC] mb-2 sm:mb-3">{tile.description}</p>
               <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5B8DEF] group-hover:gap-2.5 transition-all">
                 Explore <FiArrowRight className="w-3.5 h-3.5" />
               </span>
@@ -444,29 +444,29 @@ const Homepage = () => {
       <div className="min-h-screen bg-[#0A0E1A]">
 
         {/* HERO */}
-        <section className="relative h-[560px] md:h-[600px] overflow-hidden border-b border-[#232F49]">
+        <section className="relative h-[480px] sm:h-[560px] md:h-[600px] overflow-hidden border-b border-[#232F49]">
           {heroSlides.map((slide, index) => (
             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${slide.image})` }} />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/70 to-[#0A0E1A]/20" />
-              <div className="relative h-full max-w-7xl mx-auto px-4 flex items-center">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0E1A] via-[#0A0E1A]/80 sm:via-[#0A0E1A]/70 to-[#0A0E1A]/40 sm:to-[#0A0E1A]/20" />
+              <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
                 <div className="relative max-w-2xl">
-                  <p className="text-xs font-mono text-[#5B8DEF] uppercase tracking-widest mb-4">
+                  <p className="text-[10px] sm:text-xs font-mono text-[#5B8DEF] uppercase tracking-widest mb-3 sm:mb-4">
                     {slide.eyebrow}
                   </p>
-                  <h1 className="text-4xl md:text-5xl font-display font-semibold text-[#EDF1F7] mb-4 leading-tight">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-semibold text-[#EDF1F7] mb-3 sm:mb-4 leading-tight">
                     {slide.title}
                   </h1>
-                  <p className="text-base md:text-lg text-[#8592AC] font-body mb-8 max-w-xl">
+                  <p className="text-sm sm:text-base md:text-lg text-[#8592AC] font-body mb-6 sm:mb-8 max-w-xl">
                     {slide.subtitle}
                   </p>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <a href="#products" className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#FFB238] hover:bg-[#ffc158] text-[#0A0E1A] rounded-lg font-mono font-semibold text-xs uppercase tracking-wider transition">
+                  <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
+                    <a href="#products" className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 bg-[#FFB238] hover:bg-[#ffc158] text-[#0A0E1A] rounded-lg font-mono font-semibold text-xs uppercase tracking-wider transition">
                       Shop Now
                     </a>
                     <a
                       href="#categories"
-                      className="inline-flex items-center gap-2 px-7 py-3.5 border border-[#232F49] hover:border-[#5B8DEF]/60 text-[#EDF1F7] rounded-lg font-mono font-semibold text-xs uppercase tracking-wider transition bg-[#121A2E]/60 backdrop-blur-sm"
+                      className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 border border-[#232F49] hover:border-[#5B8DEF]/60 text-[#EDF1F7] rounded-lg font-mono font-semibold text-xs uppercase tracking-wider transition bg-[#121A2E]/60 backdrop-blur-sm"
                     >
                       Explore Categories
                     </a>
@@ -477,7 +477,7 @@ const Homepage = () => {
           ))}
 
           {/* Slide indicators */}
-          <div className="absolute bottom-8 left-4 sm:left-8 flex items-center gap-2 z-10">
+          <div className="absolute bottom-6 sm:bottom-8 left-4 sm:left-6 lg:left-8 flex items-center gap-2 z-10">
             {heroSlides.map((_, i) => (
               <button
                 key={i}
@@ -493,17 +493,15 @@ const Homepage = () => {
         <TrustBar />
 
         {/* DEALS & COMBOS */}
-        <section className="max-w-7xl mx-auto px-4 pt-16">
-          <DealsSection isAdmin={isAdmin} />
-        </section>
+        <DealsSection isAdmin={isAdmin} />
 
         {/* CATEGORIES */}
-        <section id="categories" className="max-w-7xl mx-auto px-4 pt-16">
+        <section id="categories" className="max-w-7xl mx-auto px-4 pt-8 sm:pt-14">
           <CategoryTiles />
         </section>
 
         {/* PRODUCTS */}
-        <section id="products" className="relative max-w-7xl mx-auto px-4 pb-4">
+        <section className="relative max-w-7xl mx-auto px-4 pb-2 sm:pb-4">
           <ProductSection
             eyebrow="Featured"
             title="All Products"

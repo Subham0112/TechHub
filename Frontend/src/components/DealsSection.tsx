@@ -45,7 +45,7 @@ const OffersCard = ({ offer, isAdmin }: { offer: Offer; isAdmin: boolean }) => {
   return (
     <div
       onClick={() => navigate('/offers')}
-      className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#FFB238]/50 hover:shadow-[0_16px_40px_-16px_rgba(255,178,56,0.3)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[280px] cursor-pointer"
+      className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#FFB238]/50 hover:shadow-[0_16px_40px_-16px_rgba(255,178,56,0.3)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[250px] sm:w-[280px] cursor-pointer snap-start"
     >
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
@@ -144,13 +144,13 @@ const DealsSection = ({ isAdmin }: { isAdmin: boolean }) => {
   }
 
   return (
-    <div className="mb-16">
-      <div className="flex items-end justify-between gap-4 mb-7">
+    <section className="max-w-7xl mx-auto px-4 pt-10 sm:pt-16 mb-12 sm:mb-16">
+      <div className="flex items-end justify-between gap-4 mb-5 sm:mb-7">
         <div>
-          <p className="text-[11px] font-mono text-[#FFB238] uppercase tracking-widest mb-2 flex items-center gap-2">
+          <p className="text-[10px] sm:text-[11px] font-mono text-[#FFB238] uppercase tracking-widest mb-1.5 sm:mb-2 flex items-center gap-2">
             <FiTag className="w-3.5 h-3.5" /> Live now
           </p>
-          <h2 className="text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">Deals & Combos</h2>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">Deals & Combos</h2>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -174,12 +174,12 @@ const DealsSection = ({ isAdmin }: { isAdmin: boolean }) => {
         </div>
       </div>
 
-      <div ref={containerRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-4">
+      <div ref={containerRef} className="flex gap-3 sm:gap-5 overflow-x-auto scrollbar-hide pb-3 sm:pb-4 snap-x snap-mandatory">
         {offers.map((offer) => (
           <OffersCard key={offer._id} offer={offer} isAdmin={isAdmin} />
         ))}
       </div>
-    </div>
+    </section>
   )
 }
 

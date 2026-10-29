@@ -101,10 +101,6 @@ const Footer = () => {
 
         <div className="border-t border-[#232F49] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
           <p>&copy; 2026 TechHub. All rights reserved.</p>
-          <span className="flex items-center gap-2 text-emerald-400 uppercase tracking-wide">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            System Online
-          </span>
         </div>
       </div>
     </footer>
