@@ -3,6 +3,7 @@ import axios from 'axios'
 import { FiStar, FiCheck, FiX, FiTrash2, FiMessageSquare } from 'react-icons/fi'
 import type { AlertData, Review, ReviewStats, ReviewStatus } from '../../types'
 import StarRating from '../StarRating'
+import { getImageUrl, onImageError } from '../../utils/imageUtils'
 
 interface AdminReviewsProps {
   handleAlert?: (alert: AlertData) => void
@@ -168,8 +169,9 @@ const AdminReviews = ({ handleAlert }: AdminReviewsProps) => {
                 <div className="flex items-center gap-3 sm:w-64 flex-shrink-0">
                   {review.product?.image ? (
                     <img
-                      src={review.product.image}
+                      src={getImageUrl(review.product.image)}
                       alt={review.product.name}
+                      onError={onImageError}
                       className="w-11 h-11 rounded-lg object-cover border border-[var(--adm-border)] flex-shrink-0"
                     />
                   ) : (
