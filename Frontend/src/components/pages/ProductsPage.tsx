@@ -48,14 +48,14 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
   const productHref = `/products/${product.slug}-${product._id}`
 
   return (
-    <div className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/60 hover:shadow-[0_14px_35px_-22px_rgba(0,0,0,0.95)] transition-all duration-300 hover:-translate-y-1">
 
-      <div className="relative h-[180px] overflow-hidden bg-[#0A0E1A]">
+      <div className="relative h-[200px] overflow-hidden bg-[#0A0E1A]">
         <img
           src={getImageUrl(product.image)}
           alt={product.name}
           onClick={() => navigate(productHref)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 cursor-pointer"
         />
 
         {typeof product.stock === 'number' && (
@@ -121,7 +121,7 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
             </button>
           ) : (
             <button
-              onClick={() => window.location.href = `/admin/products`}
+              onClick={() => navigate('/admin/products')}
               className="px-2.5 py-1 cursor-pointer text-[10px] font-mono uppercase tracking-wide text-[#5B8DEF] bg-[#5B8DEF]/10 border border-[#5B8DEF]/30 rounded-lg"
             >
               Manage
@@ -486,7 +486,7 @@ const ProductsPage = () => {
 
           {/* Grid */}
           {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {Array.from({ length: 10 }).map((_, i) => (
                 <SkeletonCard key={i} delay={i * 60} />
               ))}
@@ -522,7 +522,7 @@ const ProductsPage = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {sortedProducts.map((product) => (
                 <ProductCard
                   key={product._id}

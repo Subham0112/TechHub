@@ -52,13 +52,13 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
   const productHref = `/products/${product.slug}-${product._id}`
 
   return (
-    <div className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[220px] sm:w-[250px] flex flex-col snap-start">
+    <div className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/60 hover:shadow-[0_14px_35px_-22px_rgba(0,0,0,0.95)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[240px] sm:w-[280px] flex flex-col snap-start">
 
-      <div className="relative h-[150px] sm:h-[180px] overflow-hidden bg-[#0A0E1A] flex-shrink-0">
+      <div className="relative h-[190px] sm:h-[220px] overflow-hidden bg-[#0A0E1A] flex-shrink-0">
         <img
           src={getImageUrl(product.image)}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+          className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500 cursor-pointer"
           onClick={() => navigate(productHref)}
         />
 
@@ -89,7 +89,7 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
         )}
       </div>
 
-      <div className="p-3 sm:p-4 flex flex-col flex-1">
+      <div className="p-3.5 sm:p-4 flex flex-col flex-1">
         <span className="text-[10px] font-mono text-[#8592AC] uppercase tracking-widest">{product.type || product.category}</span>
         <h3
           onClick={() => navigate(productHref)}
@@ -127,7 +127,7 @@ const ProductCard = ({ product, handleCartClick, isAdmin }: {
             </button>
           ) : (
             <button
-              onClick={() => window.location.href = `/admin/products`}
+              onClick={() => navigate('/admin/products')}
               className="px-2.5 py-1 cursor-pointer text-[10px] font-mono uppercase tracking-wide text-[#5B8DEF] bg-[#5B8DEF]/10 border border-[#5B8DEF]/30 rounded-lg"
             >
               Manage

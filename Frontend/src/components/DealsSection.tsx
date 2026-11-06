@@ -1,6 +1,13 @@
 import React, { useContext, useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiArrowRight, FiShoppingCart, FiTag } from 'react-icons/fi'
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiArrowRight,
+  FiShoppingCart,
+  FiTag,
+  FiSettings,
+} from 'react-icons/fi'
 import { useOffers } from './context/OffersContext'
 import { CartContext } from './context/CartContext'
 import { getImageUrl } from '../utils/imageUtils'
@@ -18,6 +25,12 @@ const offerSavings = (offer: Offer): number => {
   return offer.discountValue
 }
 
+const offerLabel = (offer: Offer): string => {
+  if (offer.type === 'combo') return 'Combo bundle'
+  if (offer.type === 'percentage') return `${offer.discountValue}% off`
+  return `Rs. ${offer.discountValue.toLocaleString()} off`
+}
+
 const OffersCard = ({ offer, isAdmin }: { offer: Offer; isAdmin: boolean }) => {
   const navigate = useNavigate()
   const cartContext = useContext(CartContext)
@@ -27,6 +40,10 @@ const OffersCard = ({ offer, isAdmin }: { offer: Offer; isAdmin: boolean }) => {
   const isCombo = offer.type === 'combo'
   const savings = offerSavings(offer)
   const regularTotal = offer.products.reduce((sum, p) => sum + p.price, 0)
+  const coverImage = offer.products[0]?.image
+  const manageHref = '/admin/offers'
+
+  const productNames = offer.products.map((p) => p.name).join(' · ')
 
   const handleAddBundle = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -42,66 +59,69 @@ const OffersCard = ({ offer, isAdmin }: { offer: Offer; isAdmin: boolean }) => {
     }
   }
 
+  const handleManage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigate(manageHref)
+  }
+
   return (
     <div
-      onClick={() => navigate('/offers')}
-      className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#FFB238]/50 hover:shadow-[0_16px_40px_-16px_rgba(255,178,56,0.3)] transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[250px] sm:w-[280px] cursor-pointer snap-start"
+      onClick={() => navigate(isAdmin ? manageHref : '/offers')}
+      className="group relative h-56 sm:h-60 flex-shrink-0 w-[270px] sm:w-[300px] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 transition-colors duration-300 cursor-pointer snap-start bg-[#121A2E]"
     >
-      <div className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wide ${isCombo
-            ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30'
-            : 'bg-[#FFB238]/15 text-[#FFB238] border border-[#FFB238]/30'
-            }`}>
-            {isCombo ? 'Combo Bundle' : (offer.discountValue >= 50 ? 'Hot Deal' : 'Offer')}
-          </span>
-          <span className="text-[10px] font-mono text-[#8592AC] uppercase tracking-widest">
-            {isCombo ? `Rs. ${offer.comboPrice?.toLocaleString()}` : offer.discountValue + '% off'}
-          </span>
-        </div>
+      <img
+        src={getImageUrl(coverImage)}
+        alt={offer.title}
+        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/70 to-transparent" />
 
-        <h3 className="text-[#EDF1F7] font-display font-semibold text-sm mb-1.5 line-clamp-2 min-h-[2.5rem]">
+      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+        <p className="text-[10px] sm:text-[11px] font-mono text-[#5B8DEF] uppercase tracking-widest mb-1 sm:mb-1.5">
+          {offerLabel(offer)}
+        </p>
+        <p className="text-base sm:text-lg font-display font-semibold text-[#EDF1F7] mb-0.5 sm:mb-1 line-clamp-2">
           {offer.title}
-        </h3>
-        {offer.description && (
-          <p className="text-xs text-[#8592AC] line-clamp-2 mb-3 min-h-[2rem]">{offer.description}</p>
-        )}
+        </p>
+        <p className="text-[11px] sm:text-xs text-[#8592AC] mb-2 line-clamp-1">
+          {offer.description || productNames}
+        </p>
 
-        {/* Product thumbnails */}
-        <div className="flex items-center gap-2 mb-4">
-          {offer.products.slice(0, 3).map((p) => (
-            <img
-              key={p._id}
-              src={getImageUrl(p.image)}
-              alt={p.name}
-              className="w-12 h-12 rounded-lg object-cover border border-[#232F49] bg-[#0A0E1A]"
-            />
-          ))}
-          {offer.products.length > 3 && (
-            <span className="w-12 h-12 rounded-lg border border-dashed border-[#232F49] flex items-center justify-center text-[10px] font-mono text-[#8592AC]">
-              +{offer.products.length - 3}
+        <div className="flex items-center gap-2 mb-2.5">
+          {isCombo ? (
+            <>
+              <span className="text-sm font-mono font-bold text-[#FFB238]">
+                Rs. {offer.comboPrice?.toLocaleString()}
+              </span>
+              <span className="text-[11px] font-mono text-[#8592AC] line-through">
+                Rs. {regularTotal.toLocaleString()}
+              </span>
+            </>
+          ) : (
+            <span className="text-[11px] font-mono text-[#8592AC]">
+              {offer.products.length} product{offer.products.length === 1 ? '' : 's'}
             </span>
           )}
-          <div className="ml-auto text-right">
-            <p className="text-[11px] font-mono text-emerald-400 font-bold">
-              Save Rs. {savings.toLocaleString()}
-            </p>
-            {isCombo && (
-              <p className="text-[10px] font-mono text-[#8592AC] line-through">
-                Rs. {regularTotal.toLocaleString()}
-              </p>
-            )}
-          </div>
+          <span className="ml-auto text-[11px] font-mono font-bold text-emerald-400">
+            Save Rs. {savings.toLocaleString()}
+          </span>
         </div>
 
-        {!isAdmin && (
+        {isAdmin ? (
+          <button
+            onClick={handleManage}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5B8DEF] group-hover:gap-2.5 transition-all cursor-pointer"
+          >
+            <FiSettings className="w-3.5 h-3.5" /> Manage offer
+          </button>
+        ) : (
           <button
             onClick={handleAddBundle}
             disabled={adding}
-            className="w-full py-2.5 bg-[#0A0E1A]/60 border border-[#232F49] text-[#EDF1F7] rounded-lg font-mono font-semibold cursor-pointer text-[11px] uppercase tracking-wide hover:bg-[#FFB238] hover:text-[#0A0E1A] hover:border-[#FFB238] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5B8DEF] group-hover:gap-2.5 transition-all cursor-pointer disabled:opacity-60"
           >
             <FiShoppingCart className="w-3.5 h-3.5" />
-            {adding ? 'Adding...' : isCombo ? 'Add Bundle' : 'Grab Deal'}
+            {adding ? 'Adding...' : isCombo ? 'Add bundle' : 'Grab offer'}
           </button>
         )}
       </div>
@@ -150,7 +170,9 @@ const DealsSection = ({ isAdmin }: { isAdmin: boolean }) => {
           <p className="text-[10px] sm:text-[11px] font-mono text-[#FFB238] uppercase tracking-widest mb-1.5 sm:mb-2 flex items-center gap-2">
             <FiTag className="w-3.5 h-3.5" /> Live now
           </p>
-          <h2 className="text-lg sm:text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">Deals & Combos</h2>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-display font-semibold text-[#EDF1F7]">
+            Offers
+          </h2>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -160,21 +182,30 @@ const DealsSection = ({ isAdmin }: { isAdmin: boolean }) => {
             View all <FiArrowRight className="w-3.5 h-3.5" />
           </button>
           <div className="flex gap-2">
-            <button onClick={() => scroll('left')} disabled={!canScrollLeft}
+            <button
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
               aria-label="Scroll offers left"
-              className="p-2.5 rounded-lg text-[#8592AC] bg-[#121A2E] border border-[#232F49] hover:border-[#FFB238]/60 hover:text-[#EDF1F7] disabled:opacity-30 transition cursor-pointer">
+              className="p-2.5 rounded-lg text-[#8592AC] bg-[#121A2E] border border-[#232F49] hover:border-[#FFB238]/60 hover:text-[#EDF1F7] disabled:opacity-30 transition cursor-pointer"
+            >
               <FiChevronLeft />
             </button>
-            <button onClick={() => scroll('right')} disabled={!canScrollRight}
+            <button
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
               aria-label="Scroll offers right"
-              className="p-2.5 rounded-lg text-[#8592AC] bg-[#121A2E] border border-[#232F49] hover:border-[#FFB238]/60 hover:text-[#EDF1F7] disabled:opacity-30 transition cursor-pointer">
+              className="p-2.5 rounded-lg text-[#8592AC] bg-[#121A2E] border border-[#232F49] hover:border-[#FFB238]/60 hover:text-[#EDF1F7] disabled:opacity-30 transition cursor-pointer"
+            >
               <FiChevronRight />
             </button>
           </div>
         </div>
       </div>
 
-      <div ref={containerRef} className="flex gap-3 sm:gap-5 overflow-x-auto scrollbar-hide pb-3 sm:pb-4 snap-x snap-mandatory">
+      <div
+        ref={containerRef}
+        className="flex gap-3 sm:gap-5 overflow-x-auto scrollbar-hide pb-3 sm:pb-4 snap-x snap-mandatory"
+      >
         {offers.map((offer) => (
           <OffersCard key={offer._id} offer={offer} isAdmin={isAdmin} />
         ))}

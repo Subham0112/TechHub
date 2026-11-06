@@ -235,17 +235,20 @@ const ProductDetailPage = () => {
                   <button
                     key={rel._id}
                     onClick={() => navigate(`/products/${rel.slug}-${rel._id}`)}
-                    className="group text-left bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                    className="group text-left bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/60 hover:shadow-[0_14px_35px_-22px_rgba(0,0,0,0.95)] transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                   >
-                    <div className="relative h-[140px] overflow-hidden bg-[#0A0E1A]">
+                    <div className="relative h-[150px] overflow-hidden bg-[#0A0E1A]">
                       <img
                         src={getImageUrl(rel.image)}
                         alt={rel.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                     <div className="p-3.5">
-                      <h3 className="text-sm font-display font-medium text-[#EDF1F7] line-clamp-1 mb-1.5">
+                      <p className="text-[10px] font-mono text-[#8592AC] uppercase tracking-widest mb-1">
+                        {rel.type || rel.category}
+                      </p>
+                      <h3 className="text-sm font-display font-medium text-[#EDF1F7] line-clamp-1 mb-1.5 hover:text-[#5B8DEF] transition-colors">
                         {rel.name}
                       </h3>
                       <span className="text-sm font-mono font-semibold text-[#FFB238]">

@@ -1,8 +1,9 @@
 import React, { useContext, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiTag, FiShoppingCart, FiCheck, FiArrowRight } from 'react-icons/fi'
+import { FiTag, FiShoppingCart, FiCheck, FiArrowRight, FiSettings } from 'react-icons/fi'
 import { useOffers } from '../context/OffersContext'
 import { CartContext } from '../context/CartContext'
+import { UserContext } from '../context/UserContext'
 import CartToast from '../CartToast'
 import { getImageUrl } from '../../utils/imageUtils'
 import type { Offer, Product } from '../../types'
@@ -15,7 +16,7 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'combos', label: 'Combos' },
 ]
 
-const OfferCard = ({ offer }: { offer: Offer }) => {
+const OfferCard = ({ offer, isAdmin }: { offer: Offer; isAdmin: boolean }) => {
   const cartContext = useContext(CartContext)
   const addToCart = cartContext?.addToCart ?? (async () => {})
   const [addedId, setAddedId] = useState<string | null>(null)
@@ -25,7 +26,7 @@ const OfferCard = ({ offer }: { offer: Offer }) => {
   const regularTotal = offer.products.reduce((sum, p) => sum + p.price, 0)
 
   const handleAdd = async (productId: string) => {
-    if (adding) return
+    if (adding || isAdmin) return
     setAdding(true)
     try {
       const product = offer.products.find((p) => p._id === productId) as unknown as Product
@@ -38,7 +39,7 @@ const OfferCard = ({ offer }: { offer: Offer }) => {
   }
 
   const handleAddBundle = async () => {
-    if (adding) return
+    if (adding || isAdmin) return
     setAdding(true)
     try {
       for (const p of offer.products) {
@@ -114,7 +115,7 @@ const OfferCard = ({ offer }: { offer: Offer }) => {
                 </div>
               </Link>
 
-              {!isCombo ? (
+              {!isCombo && !isAdmin ? (
                 <button
                   onClick={() => handleAdd(p._id)}
                   disabled={adding}
@@ -132,9 +133,21 @@ const OfferCard = ({ offer }: { offer: Offer }) => {
       {/* Footer */}
       <div className="px-5 py-4 border-t border-[#232F49] bg-[#0A0E1A]/40 flex items-center justify-between gap-3">
         <p className="text-[11px] text-[#8592AC] font-mono uppercase tracking-wide">
-          {isCombo ? 'All products added together' : 'Discount applies automatically'}
+          {isAdmin
+            ? 'Manage this offer in the admin dashboard'
+            : isCombo
+              ? 'All products added together'
+              : 'Discount applies automatically'}
         </p>
-        {isCombo && (
+        {isAdmin ? (
+          <Link
+            to="/admin/offers"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#5B8DEF] hover:bg-[#4A7CE0] text-[#0A0E1A] rounded-lg font-mono font-semibold text-[11px] uppercase tracking-wider transition cursor-pointer"
+          >
+            <FiSettings className="w-3.5 h-3.5" />
+            Manage offer
+          </Link>
+        ) : isCombo ? (
           <button
             onClick={handleAddBundle}
             disabled={adding}
@@ -143,7 +156,7 @@ const OfferCard = ({ offer }: { offer: Offer }) => {
             {addedId === 'bundle' ? <FiCheck className="w-3.5 h-3.5" /> : <FiShoppingCart className="w-3.5 h-3.5" />}
             {addedId === 'bundle' ? 'Added!' : adding ? 'Adding...' : 'Add Bundle'}
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   )
@@ -151,6 +164,8 @@ const OfferCard = ({ offer }: { offer: Offer }) => {
 
 const OffersPage = () => {
   const { offers, offersLoading } = useOffers()
+  const { user } = useContext(UserContext)
+  const isAdmin = user?.role === 'admin'
   const [filter, setFilter] = useState<Filter>('all')
 
   const filtered = useMemo(() => {
@@ -218,7 +233,7 @@ const OffersPage = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filtered.map((offer) => (
-              <OfferCard key={offer._id} offer={offer} />
+              <OfferCard key={offer._id} offer={offer} isAdmin={isAdmin} />
             ))}
           </div>
         )}

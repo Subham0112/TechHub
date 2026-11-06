@@ -2,30 +2,32 @@ import React, { useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { CartContext } from '../context/CartContext'
+import { UserContext } from '../context/UserContext'
 import { getImageUrl } from '../../utils/imageUtils'
 import { getErrorMessage } from '../../utils/errorUtils'
 import { FiShoppingCart, FiArrowLeft } from 'react-icons/fi'
 import type { Product } from '../../types'
 
-const ProductCard = ({ product, idx, handleCartClick }: {
+const ProductCard = ({ product, idx, handleCartClick, isAdmin }: {
   product: Product;
   idx: number;
   handleCartClick: (product: Product) => void;
+  isAdmin: boolean;
 }) => {
   const navigate = useNavigate()
   const productHref = `/products/${product.slug}-${product._id}`
 
   return (
     <div
-      className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/50 hover:shadow-[0_16px_40px_-16px_rgba(91,141,239,0.35)] transition-all duration-300 hover:-translate-y-1"
+      className="group relative bg-[#121A2E] rounded-xl overflow-hidden border border-[#232F49] hover:border-[#5B8DEF]/60 hover:shadow-[0_14px_35px_-22px_rgba(0,0,0,0.95)] transition-all duration-300 hover:-translate-y-1"
       style={{ animation: `fadeSlideUp 0.4s ease both`, animationDelay: `${idx * 40}ms` }}
     >
-      <div className="relative h-[180px] overflow-hidden bg-[#0A0E1A]">
+      <div className="relative h-[200px] overflow-hidden bg-[#0A0E1A]">
         <img
           src={getImageUrl(product.image)}
           alt={product.name}
           onClick={() => navigate(productHref)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 cursor-pointer"
         />
 
         {typeof product.stock === 'number' && (
@@ -41,16 +43,18 @@ const ProductCard = ({ product, idx, handleCartClick }: {
           </span>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-          <button
-            onClick={() => handleCartClick(product)}
-            disabled={product.stock === 0}
-            className="w-full py-2 bg-[#0A0E1A]/85 backdrop-blur-sm border border-[#5B8DEF]/40 text-[#EDF1F7] rounded-lg font-mono font-semibold cursor-pointer text-[11px] uppercase tracking-wide hover:bg-[#5B8DEF] hover:text-[#0A0E1A] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <FiShoppingCart className="w-3.5 h-3.5" />
-            Quick Add
-          </button>
-        </div>
+        {!isAdmin && (
+          <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+            <button
+              onClick={() => handleCartClick(product)}
+              disabled={product.stock === 0}
+              className="w-full py-2 bg-[#0A0E1A]/85 backdrop-blur-sm border border-[#5B8DEF]/40 text-[#EDF1F7] rounded-lg font-mono font-semibold cursor-pointer text-[11px] uppercase tracking-wide hover:bg-[#5B8DEF] hover:text-[#0A0E1A] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <FiShoppingCart className="w-3.5 h-3.5" />
+              Quick Add
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="p-4">
@@ -76,14 +80,23 @@ const ProductCard = ({ product, idx, handleCartClick }: {
               </span>
             )}
           </div>
-          <button
-            onClick={() => handleCartClick(product)}
-            disabled={product.stock === 0}
-            aria-label={`Add ${product.name} to cart`}
-            className="p-2 bg-[#182238] border border-[#232F49] hover:bg-[#5B8DEF] text-[#8592AC] hover:text-[#0A0E1A] rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <FiShoppingCart className="w-4 h-4" />
-          </button>
+          {!isAdmin ? (
+            <button
+              onClick={() => handleCartClick(product)}
+              disabled={product.stock === 0}
+              aria-label={`Add ${product.name} to cart`}
+              className="p-2 bg-[#182238] border border-[#232F49] hover:bg-[#5B8DEF] text-[#8592AC] hover:text-[#0A0E1A] rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <FiShoppingCart className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/admin/products')}
+              className="px-2.5 py-1 cursor-pointer text-[10px] font-mono uppercase tracking-wide text-[#5B8DEF] bg-[#5B8DEF]/10 border border-[#5B8DEF]/30 rounded-lg"
+            >
+              Manage
+            </button>
+          )}
         </div>
       </div>
 
@@ -103,6 +116,8 @@ const ProductCategoryPage = () => {
   const { category } = useParams<{ category: string }>()
   const cartContext = useContext(CartContext)
   const addToCart = cartContext?.addToCart ?? (async () => {})
+  const { user } = useContext(UserContext)
+  const isAdmin = user?.role === 'admin'
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -158,7 +173,7 @@ const ProductCategoryPage = () => {
 
         {/* Loading skeleton */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-5">
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
@@ -192,9 +207,9 @@ const ProductCategoryPage = () => {
           </div>
         ) : (
           /* Product grid */
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-5">
             {products.map((product, idx) => (
-              <ProductCard key={product._id} product={product} idx={idx} handleCartClick={addToCart} />
+              <ProductCard key={product._id} product={product} idx={idx} handleCartClick={addToCart} isAdmin={isAdmin} />
             ))}
           </div>
         )}
