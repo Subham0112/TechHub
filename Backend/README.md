@@ -8,7 +8,7 @@ Node.js + Express + **Prisma (PostgreSQL)** REST API for the TechHub e-commerce 
 - Node.js + Express 5 + TypeScript (run with `tsx`)
 - Prisma ORM 7 (`prisma-client` generator → `generated/prisma`) with **PostgreSQL** via `@prisma/adapter-pg`
 - JWT (httpOnly cookie auth) + bcrypt password hashing
-- express-validator, multer (product image uploads), slugify, dotenv
+- express-validator, multer (in-memory parsing) + Supabase Storage (product images), slugify, dotenv
 
 ## Setup & Run
 
@@ -28,22 +28,26 @@ npm run typecheck          # tsc --noEmit
 | `DATABASE_URL` | `postgresql://user:pass@localhost:5432/techhub` |
 | `JWT_SECRET_KEY` | JWT signing secret |
 | `PORT` | default 3000 |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_KEY` | Supabase API key (use a service role key for server uploads/deletes) |
+| `SUPABASE_BUCKET` | Storage bucket name (default `products`, must be public) |
 | `ADMIN_NAME/PHONE/EMAIL/PASSWORD/ADDRESS` | values used by `seed:admin` |
 
 ## Architecture
 
 ```
-app.ts                      Express app, static /api/uploads, route mounting
+app.ts                      Express app and route mounting
 prisma/schema.prisma        Data models (User, Product, Cart/CartItem, Order/OrderItem)
 prisma.config.ts            Prisma CLI config (reads DATABASE_URL)
 seedAdmin.ts                Seeds/updates the admin user (Prisma)
 src/
   config/prisma.ts          PrismaClient singleton with PrismaPg adapter
+  config/supabase.ts        Supabase client + bucket config
   controllers/              users, products (+orders), cart, admin (stats via raw SQL)
-  middlewares/              auth, adminAuth (JWT), multer (uploads)
+  middlewares/              auth, adminAuth (JWT), multer (in-memory file parsing)
   routes/                   users, products, cart, order, admin
+  services/storage.service.ts  Supabase Storage upload/delete helpers
   types/express.d.ts        AuthUser type on req.user
-  uploads/                  uploaded product images (served at /api/uploads)
 ```
 
 ## API Endpoints
@@ -92,9 +96,10 @@ The frontend expects the old Mongoose shapes. Controllers keep this by:
 
 ## Uploads
 
-Multer writes to `src/uploads/` (shared `uploadDir` export in `src/middlewares/multer.ts`).
-`app.ts` serves them at `/api/uploads` from the same dir. DB stores `/uploads/<file>`; the
-frontend prefixes the API base.
+Multer parses uploads in memory (5MB limit, image types only). `src/services/storage.service.ts`
+uploads the buffer to the configured Supabase Storage bucket and stores the public URL in the
+`Product.image` column. Replacing or deleting a product removes the old Supabase object. The
+bucket must exist and be public (or served via signed URLs if made private).
 
 ## Admin Analytics
 

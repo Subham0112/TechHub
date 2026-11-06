@@ -11,7 +11,6 @@ import ContactRoutes from "./src/routes/contact.route";
 import CategoryRoutes from "./src/routes/categories.route";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { uploadDir } from "./src/middlewares/multer";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -42,8 +41,6 @@ if (process.env.NODE_ENV === "production") {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-app.use("/api/uploads", express.static(uploadDir));
 
 app.use("/api/users", UserRoutes);
 app.use("/api/products", ProductRoutes);

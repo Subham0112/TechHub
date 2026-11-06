@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import slugify from "slugify";
-import path from "path";
-import fs from "fs";
 import { prisma } from "../config/prisma";
 import type { Order, OrderItem, Product, User } from "../../generated/prisma/client";
 import {
@@ -10,6 +8,10 @@ import {
   getPricingMaps,
 } from "../services/offer.service";
 import { getRatingMap } from "../services/review.service";
+import {
+  deleteProductImage,
+  uploadProductImage,
+} from "../services/storage.service";
 
 export const productToClient = (p: Product) => ({ ...p, _id: String(p.id) });
 
@@ -92,7 +94,18 @@ const createProduct = async (req: Request, res: Response) => {
   };
   try {
     const slug = slugify(name, { lower: true, strict: true });
-    const image = req.file ? `/uploads/${req.file.filename}` : "";
+
+    let image = "";
+    if (req.file) {
+      try {
+        image = await uploadProductImage(req.file);
+      } catch (uploadError) {
+        console.error("Error uploading product image:", uploadError);
+        return res
+          .status(500)
+          .json({ message: "Failed to upload product image" });
+      }
+    }
 
     const product = await prisma.product.create({
       data: {
@@ -202,31 +215,43 @@ const updateProduct = async (req: Request, res: Response) => {
     }
 
     const slug = slugify(name, { lower: true, strict: true });
-    let image = existingProduct.image;
+    let newImage: string | null = null;
 
     if (req.file) {
-      if (existingProduct.image && existingProduct.image.startsWith("/uploads/")) {
-        const oldPath = path.join(__dirname, "..", existingProduct.image);
-        fs.unlink(oldPath, (err) => {
-          if (err) console.error("Error deleting old image:", err);
-        });
+      try {
+        newImage = await uploadProductImage(req.file);
+      } catch (uploadError) {
+        console.error("Error uploading product image:", uploadError);
+        return res
+          .status(500)
+          .json({ message: "Failed to upload product image" });
       }
-      image = `/uploads/${req.file.filename}`;
     }
 
-    const product = await prisma.product.update({
-      where: { id },
-      data: {
-        name,
-        price: Number(price),
-        description,
-        slug,
-        image,
-        category,
-        type,
-        stock: Number(stock),
-      },
-    });
+    let product;
+    try {
+      product = await prisma.product.update({
+        where: { id },
+        data: {
+          name,
+          price: Number(price),
+          description,
+          slug,
+          image: newImage ?? existingProduct.image,
+          category,
+          type,
+          stock: Number(stock),
+        },
+      });
+    } catch (dbError) {
+      if (newImage) await deleteProductImage(newImage);
+      throw dbError;
+    }
+
+    if (newImage && existingProduct.image) {
+      await deleteProductImage(existingProduct.image);
+    }
+
     res.status(200).json(await enrichProduct(product));
   } catch (error) {
     console.error("Error updating product:", error);
@@ -245,6 +270,7 @@ const deleteProduct = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Product not found" });
     }
     await prisma.product.delete({ where: { id } });
+    await deleteProductImage(product.image);
     res.status(200).json(productToClient(product));
   } catch (error) {
     console.error("Error deleting product:", error);
